@@ -1,0 +1,52 @@
+commit 89a347c85284c5cf3ca3ad7250f21c7e698af858
+Author: Michael T. Dean <mdean@mythtv.org>
+Date:   Wed May 30 17:19:55 2012 -0400
+
+    Fix MythWeb Upcoming Recordings programinfo usage.
+    
+    The programinfo refactor in #8406 changed the order of fields returned
+    in a programinfo string list, and a reference was missed in the MythWeb
+    Schedule class.  The result is that any recording rule with recordid of
+    6 was skipped/didn't show in Upcoming Recordings.
+    
+    The original intent of the code was to skip recordings with recstatus of
+    rsNotListed (as shown in commits e728aea5 and 508103511 , committed for
+    which has since been modified, again, by a41e9657.  (Therefore, the
+    index in this commit is correct for 0.25-fixes and above, but should be
+    18 for 0.24-fixes.)
+    
+    Thanks to JK on the -users list for finding the issue.
+    (cherry picked from commit 39a5dcd101ce7a6b97474f7b824b358f6e05c0cd)
+
+commit 8c43d8da31d738c75ec6abc9daff2772b16310c8
+Author: David Engel <david@istwok.net>
+Date:   Mon Apr 30 17:01:44 2012 -0500
+
+    Clear the search type when creating an override or don't record for
+    non-manual rules.  Based on a patch from david.osguthorpe.
+    
+    Fixes #10580 and fixes #10650 .
+
+commit 1833030d2ce0b5f2ec4f507031e6628458ca46b9
+Author: Kenni Lund <kenni@mythtv.org>
+Date:   Wed Apr 11 21:06:29 2012 +0200
+
+    Convert the Spanish (es_es) translation files to UTF8.
+    
+    Refs. #10575.
+
+commit 4d6e6219083446c024e8467cbff64ab42521b05c
+Author: Antonio Marcos López Alonso <amlopezalonso@gmail.com>
+Date:   Wed Apr 11 20:55:18 2012 +0200
+
+    Update the Spanish translation.
+    
+    Refs. #10575.
+    
+    Signed-off-by: Kenni Lund <kenni@mythtv.org>
+
+commit ed863708c02dd3620a7f4c0e37b118d00e712daa
+Author: Gavin Hurlbut <ghurlbut@mythtv.org>
+Date:   Tue Apr 10 00:18:10 2012 -0700
+
+    Force a commit
