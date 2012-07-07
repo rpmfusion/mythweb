@@ -10,7 +10,7 @@ URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
 Version:        0.25.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -21,7 +21,10 @@ Source2:        ChangeLog
 
 # Patch generated from mythweb fixes branch. From mythweb git directory:
 # git diff -p --stat %{version} > mythweb-fixes.patch
-Patch1:         mythweb-fixes.patch
+Patch0:         mythweb-fixes.patch
+
+# Needed for PHP 5.4
+Patch1:         mythweb-php54.patch
 
 # The following are required only in mythweb is running on the same computer
 # as the backend. They will be pulled in by the mythtv meta package anyway.
@@ -43,7 +46,7 @@ The web interface to MythTV.
 
 %prep
 %setup -q -n MythTV-mythweb-%{githash2}
-#patch1 -p1 -b .mythweb
+%patch1 -p1 -b .php54
 
 # Fix directory permissions
 #find ./ -type d -exec chmod 0755 {} \;
@@ -71,10 +74,14 @@ rm -f %{buildroot}%{_datadir}/mythweb/data/.htaccess
 %files
 %doc README LICENSE ChangeLog
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/mythweb.conf
+%defattr(-,apache,apache,0755)
 %{_datadir}/mythweb/
 
 
 %changelog
+* Fri Jul 06 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.1-3
+- Patch for PHP 5.4 warnings.
+
 * Sun Jul 01 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.1-2
 - Lots of tweaks per review request:
   https://bugzilla.rpmfusion.org/show_bug.cgi?id=2366
