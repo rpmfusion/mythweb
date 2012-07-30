@@ -2,15 +2,15 @@
 # git hash for archive
 %global githash1 g89a347c
 # git hash for root source directory
-%global githash2 ae20c88
+%global githash2 89353c5
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
-Version:        0.25.1
-Release:        3%{?dist}
+Version:        0.25.2
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -21,7 +21,7 @@ Source2:        ChangeLog
 
 # Patch generated from mythweb fixes branch. From mythweb git directory:
 # git diff -p --stat %{version} > mythweb-fixes.patch
-Patch0:         mythweb-fixes.patch
+#Patch0:         mythweb-fixes.patch
 
 # Needed for PHP 5.4
 Patch1:         mythweb-php54.patch
@@ -79,6 +79,9 @@ rm -f %{buildroot}%{_datadir}/mythweb/data/.htaccess
 
 
 %changelog
+* Mon Jul 30 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.2-1
+- Update to latests release.
+
 * Fri Jul 06 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.1-3
 - Patch for PHP 5.4 warnings.
 
