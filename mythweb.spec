@@ -1,15 +1,14 @@
 # Mythweb from github.com
 # git hash for archive
-%global githash1 g89a347c
-# git hash for root source directory
-%global githash2 89353c5
+%global githash1 g4dcd253
+%global githash2 4e9fd7a
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
-Version:        0.25.2
+Version:        0.26.0
 Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
@@ -23,9 +22,6 @@ Source2:        ChangeLog
 # git diff -p --stat %{version} > mythweb-fixes.patch
 #Patch0:         mythweb-fixes.patch
 
-# Needed for PHP 5.4
-Patch1:         mythweb-php54.patch
-
 # The following are required only in mythweb is running on the same computer
 # as the backend. They will be pulled in by the mythtv meta package anyway.
 #Requires:       mythtv-backend >= %{version}-%{release}
@@ -36,6 +32,7 @@ Requires:       php >= 5.1
 Requires:       php-mysql
 Requires:       php-process
 Requires:       php-MythTV >= %{version}
+Requires:       mythffmpeg
 
 BuildArch:      noarch
 
@@ -46,7 +43,7 @@ The web interface to MythTV.
 
 %prep
 %setup -q -n MythTV-mythweb-%{githash2}
-%patch1 -p1 -b .php54
+#patch1 -p1 -b .php54
 
 # Fix directory permissions
 #find ./ -type d -exec chmod 0755 {} \;
@@ -79,6 +76,9 @@ rm -f %{buildroot}%{_datadir}/mythweb/data/.htaccess
 
 
 %changelog
+* Sun Oct 28 2012 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-1
+* Update to latest upstream release.
+
 * Mon Jul 30 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.2-1
 - Update to latests release.
 
