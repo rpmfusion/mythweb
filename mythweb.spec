@@ -9,7 +9,7 @@ URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
 Version:        0.26.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -79,6 +79,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Fri Jan 11 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-3
+- Update mythweb config to work with apache 2.4.
+
 * Sat Dec 08 2012 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-2
 - Update to latest upstream release.
 
