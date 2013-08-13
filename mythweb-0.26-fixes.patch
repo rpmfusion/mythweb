@@ -1,10 +1,17 @@
  classes/Video.php                    | 14 ++++----
  modules/stream/stream_raw.pl         |  4 +++
+ modules/tv/classes/Schedule.php      | 41 +++++++++++++++++++++
+ modules/tv/detail.php                | 37 ++-----------------
+ modules/tv/schedules_custom.php      | 39 ++------------------
+ modules/tv/schedules_manual.php      | 35 ++----------------
+ modules/tv/tmpl/default/detail.php   |  2 +-
+ modules/tv/tmpl/default/recorded.php |  2 +-
+ modules/tv/tmpl/lite/detail.php      |  2 +-
  modules/video/handler.php            | 26 +++++++++-----
  modules/video/stream.php             | 69 ++++++++++++++++++++++++++++++++++++
  modules/video/tmpl/default/video.php |  2 +-
  mythweb.php                          |  2 +-
- 6 files changed, 101 insertions(+), 16 deletions(-)
+ 13 files changed, 152 insertions(+), 123 deletions(-)
 
 diff --git a/classes/Video.php b/classes/Video.php
 index 7995aa4..5c6f7e4 100644
@@ -46,6 +53,253 @@ index 31f6854..6981bca 100755
      else {
          print header(),
                "Unknown video type requested:  $basename\n";
+diff --git a/modules/tv/classes/Schedule.php b/modules/tv/classes/Schedule.php
+index 3d9400f..0ad566d 100644
+--- a/modules/tv/classes/Schedule.php
++++ b/modules/tv/classes/Schedule.php
+@@ -240,6 +240,47 @@ class Schedule extends MythBase {
+     }
+ 
+ /**
++ * Alternative constructor for returning recording templates
++ **/
++    static function recording_template($name) {
++        global $db;
++        $sched = new Schedule(NULL);
++        $data = $db->query_assoc('
++            SELECT *
++            FROM   record
++            WHERE  type = ?
++            AND    title = ?',
++            rectype_template,
++            $name.' (Template)'
++        );
++
++        $template_params = array(
++            'recpriority', 'prefinput', 'startoffset', 'endoffset',
++            'dupmethod', 'dupin', 'filter', 'inactive',
++            'profile', 'recgroup', 'storagegroup', 'playgroup', 'autoexpire',
++            'maxepisodes', 'maxnewest',
++            'autocommflag', 'autotranscode', 'transcoder',
++            'autouserjob1', 'autouserjob2', 'autouserjob3', 'autouserjob4',
++            'autometadata');
++        foreach ($template_params as $param)
++            if (isset($data[$param]))
++                $sched->$param = $data[$param];
++
++        return $sched;
++    }
++
++/**
++ * Merge values from another schedule
++ **/
++    public function merge($prog) {
++        foreach (get_object_vars($prog) as $name => $value) {
++            if ($value && !$this->$name) {
++                $this->$name = $value;
++            }
++        }
++    }
++
++/**
+  * Save this schedule
+ /**/
+     public function save($new_type) {
+diff --git a/modules/tv/detail.php b/modules/tv/detail.php
+index 27637c2..48bdb53 100644
+--- a/modules/tv/detail.php
++++ b/modules/tv/detail.php
+@@ -269,42 +269,9 @@
+     // Redirect back to the page again, but without the query string, so reloads are cleaner
+         redirect_browser(root_url.'tv/detail/'.$program->chanid.'/'.$program->starttime);
+     }
+-// Load default settings for recpriority, autoexpire etc
+     else {
+-    // auto-metadata-lookup
+-        if (!isset($schedule->autometadata))
+-            $schedule->autometadata = setting('AutoMetadataLookup');
+-    // auto-commercial-flag
+-        if (!isset($schedule->autocommflag))
+-            $schedule->autocommflag = setting('AutoCommercialFlag');
+-    // auto-user-jobs
+-        if (!isset($schedule->autouserjob1))
+-            $schedule->autouserjob1 = setting('AutoRunUserJob1');
+-        if (!isset($schedule->autouserjob2))
+-            $schedule->autouserjob2 = setting('AutoRunUserJob2');
+-        if (!isset($schedule->autouserjob3))
+-            $schedule->autouserjob3 = setting('AutoRunUserJob3');
+-        if (!isset($schedule->autouserjob4))
+-            $schedule->autouserjob4 = setting('AutoRunUserJob4');
+-    // auto-transcode
+-        if (!isset($schedule->autotranscode))
+-            $schedule->autotranscode = setting('AutoTranscode');
+-    // transcoder
+-        if (!isset($schedule->transcoder))
+-            $schedule->transcoder = setting('DefaultTranscoder');
+-    // recpriority
+-        if (!isset($schedule->recpriority)) {
+-            $schedule->recpriority = $db->query_col('SELECT recpriority from channel where chanid=?',
+-                                                    $program->chanid);
+-        }
+-    // autoexpire
+-        if (!isset($schedule->autoexpire))
+-            $schedule->autoexpire = setting('AutoExpireDefault');
+-    // start early / end late
+-        if (!isset($schedule->startoffset))
+-            $schedule->startoffset = setting('DefaultStartOffset');
+-        if (!isset($schedule->endoffset))
+-            $schedule->endoffset = setting('DefaultEndOffset');
++    // Load default values from Default recording rule template
++        $schedule->merge(Schedule::recording_template('Default'));
+     }
+ 
+ // Load the channel
+diff --git a/modules/tv/schedules_custom.php b/modules/tv/schedules_custom.php
+index 623db4b..035c46b 100644
+--- a/modules/tv/schedules_custom.php
++++ b/modules/tv/schedules_custom.php
+@@ -147,46 +147,11 @@
+             }
+         }
+     }
+-// Load default settings for recpriority, autoexpire etc
++// Set some defaults
+     else {
+     // Make sure we have a default rectype
+         if (!$schedule->type)
+             $schedule->type = rectype_always;
+-    // auto-metadata-lookup
+-        if (!isset($schedule->autometadata))
+-            $schedule->autometadata = setting('AutoMetadataLookup');
+-    // auto-commercial-flag
+-        if (!isset($schedule->autocommflag))
+-            $schedule->autocommflag = setting('AutoCommercialFlag');
+-    // auto-user-jobs
+-        if (!isset($schedule->autouserjob1))
+-            $schedule->autouserjob1 = setting('AutoRunUserJob1');
+-        if (!isset($schedule->autouserjob2))
+-            $schedule->autouserjob2 = setting('AutoRunUserJob2');
+-        if (!isset($schedule->autouserjob3))
+-            $schedule->autouserjob3 = setting('AutoRunUserJob3');
+-        if (!isset($schedule->autouserjob4))
+-            $schedule->autouserjob4 = setting('AutoRunUserJob4');
+-    // auto-transcode
+-        if (!isset($schedule->autotranscode))
+-            $schedule->autotranscode = setting('AutoTranscode');
+-    // transcoder
+-        if (!isset($schedule->transcoder))
+-            $schedule->transcoder = setting('DefaultTranscoder');
+-    // recpriority
+-        if (!isset($schedule->recpriority)) {
+-            $result = mysql_query('SELECT recpriority from channel where chanid='.escape($program->chanid));
+-            list($schedule->recpriority) = mysql_fetch_row($result);
+-            mysql_free_result($result);
+-        }
+-    // autoexpire
+-        if (!isset($schedule->autoexpire))
+-            $schedule->autoexpire = setting('AutoExpireDefault');
+-    // start early / end late
+-        if (!isset($schedule->startoffset))
+-            $schedule->startoffset = setting('DefaultStartOffset');
+-        if (!isset($schedule->endoffset))
+-            $schedule->endoffset = setting('DefaultEndOffset');
+     // Get the searchtype string
+         switch ($schedule->search) {
+             case searchtype_power:   $schedule->search_type = t('Power');   break;
+@@ -195,6 +160,8 @@
+             case searchtype_title:
+             default:                 $schedule->search_type = t('Title');   break;
+         }
++    // Load default values from Default recording rule template
++        $schedule->merge(Schedule::recording_template('Default'));
+     }
+ 
+ // Create an edit-friendly title
+diff --git a/modules/tv/schedules_manual.php b/modules/tv/schedules_manual.php
+index 626ec39..6a2937a 100644
+--- a/modules/tv/schedules_manual.php
++++ b/modules/tv/schedules_manual.php
+@@ -120,39 +120,8 @@
+     // Date/time/etc
+         if (!$schedule->starttime)
+             $schedule->starttime = time();
+-    // auto-metadata-lookup
+-        if (!isset($schedule->autometadata))
+-            $schedule->autometadata = setting('AutoMetadataLookup');
+-    // auto-commercial-flag
+-        if (!isset($schedule->autocommflag))
+-            $schedule->autocommflag = setting('AutoCommercialFlag');
+-    // auto-user-jobs
+-        if (!isset($schedule->autouserjob1))
+-            $schedule->autouserjob1 = setting('AutoRunUserJob1');
+-        if (!isset($schedule->autouserjob2))
+-            $schedule->autouserjob2 = setting('AutoRunUserJob2');
+-        if (!isset($schedule->autouserjob3))
+-            $schedule->autouserjob3 = setting('AutoRunUserJob3');
+-        if (!isset($schedule->autouserjob4))
+-            $schedule->autouserjob4 = setting('AutoRunUserJob4');
+-    // auto-transcode
+-        if (!isset($schedule->autotranscode))
+-            $schedule->autotranscode = setting('AutoTranscode');
+-    // transcoder
+-        if (!isset($schedule->transcoder))
+-            $schedule->transcoder = setting('DefaultTranscoder');
+-    // recpriority
+-        if (!isset($schedule->recpriority)) {
+-            $result = mysql_query('SELECT recpriority from channel where chanid='.escape($program->chanid));
+-            list($schedule->recpriority) = mysql_fetch_row($result);
+-            mysql_free_result($result);
+-        }
+-    // autoexpire
+-        if (!isset($schedule->autoexpire)) {
+-            $result = mysql_query("SELECT data from settings where value='AutoExpireDefault'");
+-            list($schedule->autoexpire) = mysql_fetch_row($result);
+-            mysql_free_result($result);
+-        }
++    // Load default values from Default recording rule template
++        $schedule->merge(Schedule::recording_template('Default'));
+     }
+ 
+ // Calculate the length
+diff --git a/modules/tv/tmpl/default/detail.php b/modules/tv/tmpl/default/detail.php
+index cdd8093..8e9bfc5 100644
+--- a/modules/tv/tmpl/default/detail.php
++++ b/modules/tv/tmpl/default/detail.php
+@@ -488,7 +488,7 @@
+             <th><?php echo t('More') ?>:</th>
+             <td>
+ <?php           if ($schedule->title) { ?>
+-                <a href="http://www.themoviedb.org/search?search=<?php echo urlencode($schedule->title) ?>"><?php echo t('Search $1', 'themoviedb') ?></a>
++                <a href="http://www.themoviedb.org/search?query=<?php echo urlencode($schedule->title) ?>"><?php echo t('Search $1', 'themoviedb') ?></a>
+                 <a href="http://www.imdb.com/search/title?title=<?php echo urlencode($schedule->title) ?>"><?php echo t('Search $1', 'IMDB') ?></a>
+                 <a href="http://www.thetvdb.com/?string=<?php echo urlencode($schedule->title) ?>&searchseriesid=&tab=listseries&function=Search"><?php echo t('Search $1', 'TheTVDB') ?></a>
+                 <a href="http://www.tv.com/search.php?type=11&stype=all&qs=<?php echo urlencode($schedule->title) ?>"><?php echo t('Search $1', 'TV.com') ?></a>
+diff --git a/modules/tv/tmpl/default/recorded.php b/modules/tv/tmpl/default/recorded.php
+index 203d4da..d1febd9 100644
+--- a/modules/tv/tmpl/default/recorded.php
++++ b/modules/tv/tmpl/default/recorded.php
+@@ -297,7 +297,7 @@ EOM;
+ ?>
+     file = new Object();
+     file.title      = '<?php echo addslashes($show->title)                  ?>';
+-    file.subtitle   = '<?php echo addslashes($show->subtitle)               ?>';
++    file.subtitle   = '<?php echo str_replace("\n", '', nl2br(addslashes($show->subtitle)))               ?>';
+     file.chanid     = '<?php echo addslashes($show->chanid)                 ?>';
+     file.starttime  = '<?php echo addslashes($show->recstartts)             ?>';
+     file.recgroup   = '<?php echo addslashes(str_replace('%2F', '/', rawurlencode($show->recgroup)))    ?>';
+diff --git a/modules/tv/tmpl/lite/detail.php b/modules/tv/tmpl/lite/detail.php
+index dc124e4..2eba29d 100644
+--- a/modules/tv/tmpl/lite/detail.php
++++ b/modules/tv/tmpl/lite/detail.php
+@@ -65,7 +65,7 @@
+                 </div>
+                 <div id="external_searches">
+                     (<?php echo t('Search') ?>: &nbsp;
+-                    <a href="http://www.themoviedb.org/search?search=<?php echo urlencode($schedule->title) ?>"><?php echo t('themoviedb') ?></a>
++                    <a href="http://www.themoviedb.org/search?query=<?php echo urlencode($schedule->title) ?>"><?php echo t('themoviedb') ?></a>
+                     &nbsp;-&nbsp;
+                     <a href="http://www.imdb.com/search/title?title=<?php echo urlencode($schedule->title) ?>"><?php echo t('IMDB') ?></a>
+                     &nbsp;-&nbsp;
 diff --git a/modules/video/handler.php b/modules/video/handler.php
 index fd769ce..721f186 100644
 --- a/modules/video/handler.php
