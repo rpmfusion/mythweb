@@ -1,7 +1,3 @@
-# Mythweb from github.com
-# git hash for archive
-%global githash1 g4dcd253
-%global githash2 4e9fd7a
 %global gitrev v0.26.0-220-g92dbb43
 
 Name:           mythweb
@@ -9,13 +5,13 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
-Version:        0.26.0
-Release:        5%{?dist}
+Version:        0.26.1
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
 # https://github.com/MythTV/mythweb/tarball/v0.25
-Source0:        MythTV-mythweb-v%{version}-0-%{githash1}.tar.gz
+Source0:        %{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
 
@@ -23,6 +19,7 @@ Source2:        ChangeLog
 # git diff -p --stat %{version} > mythweb-fixes.patch
 Patch0:         mythweb-0.26-fixes.patch
 Patch1:         mythweb-notrans.patch
+Patch2:         mythweb-phperror.patch
 
 # The following are required only in mythweb is running on the same computer
 # as the backend. They will be pulled in by the mythtv meta package anyway.
@@ -44,9 +41,10 @@ The web interface to MythTV.
 
 
 %prep
-%setup -q -n MythTV-mythweb-%{githash2}
-%patch0 -p1
+%setup -q
+#patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 # Fix directory permissions
 #find ./ -type d -exec chmod 0755 {} \;
@@ -80,6 +78,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Fri Aug 23 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-1
+- Update to latest upstream version.
+
 * Mon Aug 13 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-5
 - Update to latest fixes.
 - Patch for NoTrans issue with php in Fedora 19 and up. (Fixes #2856)
