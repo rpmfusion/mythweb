@@ -6,7 +6,7 @@ URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
 Version:        0.26.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -76,6 +76,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Mon Sep 30 2013 Nicolas Chauvet <kwizart@gmail.com> - 0.26.1-3
+- Rebuilt
+
 * Mon Sep  2 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-2
 - Update to latest upstream release.
 
