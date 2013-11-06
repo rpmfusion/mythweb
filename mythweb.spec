@@ -1,24 +1,23 @@
-%global gitrev v0.26.1-2-g7326d7e
+%global ver_string v0.27-1-g6d10afe
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
-Version:        0.26.1
-Release:        2%{?dist}
+Version:        0.27
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
-# https://github.com/MythTV/mythweb/tarball/v0.25
+# https://github.com/MythTV/mythweb/archive/v0.27.tar.gz
 Source0:        %{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
 
 # Patch generated from mythweb fixes branch. From mythweb git directory:
 # git diff -p --stat %{version} > mythweb-fixes.patch
-Patch0:         mythweb-0.26-fixes.patch
-Patch1:         mythweb-notrans.patch
+Patch0:         mythweb-0.27-fixes.patch
 
 # The following are required only in mythweb is running on the same computer
 # as the backend. They will be pulled in by the mythtv meta package anyway.
@@ -40,9 +39,8 @@ The web interface to MythTV.
 
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}
 %patch0 -p1
-%patch1 -p1
 
 # Fix directory permissions
 #find ./ -type d -exec chmod 0755 {} \;
@@ -61,6 +59,14 @@ install -m 0644 %{SOURCE2} .
 %install
 mkdir -p %{buildroot}%{_datadir}/mythweb/{image_cache,php_sessions}
 cp -a * %{buildroot}%{_datadir}/mythweb/
+
+# data dir needs to be a directory suitable for writing
+mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
+mv %{buildroot}%{_datadir}/%{name}/data %{buildroot}%{_sharedstatedir}/%{name}/
+pushd %{buildroot}%{_datadir}/%{name}
+ln -s ../../..%{_sharedstatedir}/%{name}/data
+
+# Install httpd config
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 cp %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
 
@@ -68,14 +74,45 @@ cp %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
 rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
+%pretrans
+# If this is an upgrade
+if [ $1 -eq 0 ] ; then
+    # If data exists and is a directory then we need move it out of the way.
+    if [ -d "%{_datadir}/%{name}/data" ] ; then
+        mv %{_datadir}/%{name}/data %{_datadir}/%{name}/_tmp_data
+    fi
+fi
+
+%posttrans
+# If this is an upgrade
+if [ $1 -eq 0 ] ; then
+    # If there is data to migrate, let's do it
+    if [ -e "%{_datadir}/%{name}/_tmp_data" ] ; then
+        cp -p %{_datadir}/%{name}/_tmp_data/cache/* \
+              %{_sharedstatedir}/%{name}/data/cache/ &> /dev/null || :
+        cp -p %{_datadir}/%{name}/_tmp_data/tv_icons/* \
+              %{_sharedstatedir}/%{name}/data/tv_icons/ &> /dev/null || :
+        rm -rf %{_datadir}/%{name}/_tmp_data
+    fi
+fi
+
+
 %files
 %doc README LICENSE ChangeLog
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/mythweb.conf
+%{_datadir}/%{name}/
 %defattr(-,apache,apache,0755)
-%{_datadir}/mythweb/
+%{_sharedstatedir}/%{name}/
 
 
 %changelog
+* Mon Oct 28 2013 Richard Shaw <hobbes1069@gmail.com> - 0.27-1
+- Update to 0.27 at latest fixes release.
+- Make mythweb write to a more appropriate directory.
+
+* Mon Sep 30 2013 Nicolas Chauvet <kwizart@gmail.com> - 0.26.1-3
+- Rebuilt
+
 * Mon Sep  2 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-2
 - Update to latest upstream release.
 
