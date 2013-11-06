@@ -1,21 +1,5 @@
-commit 7326d7ef70fb86037d9c30ca7e0762d0cb01b7ff
-Author: Scott Shawcroft <scott.shawcroft@gmail.com>
-Date:   Tue Aug 27 22:34:55 2013 -0400
+commit 6d10afe73e1fb5f21688d4b6d6919cab618e6e88
+Author: Stuart Morgan <smorgan@mythtv.org>
+Date:   Thu Oct 17 21:37:02 2013 +0100
 
-    Fix the problem of MythWeb failing to load translations
-    
-    Refs #11513
-    
-    Signed-off-by: Nicolas Riendeau <nriendeau@mythtv.org>
-
-commit 5d8ffe109286269ada87390a2b74e142ec36e364
-Author: Karl Dietz <dekarl@mythtv.org>
-Date:   Mon Aug 26 22:39:35 2013 +0200
-
-    fix merge in schedule templates added in f97529656
-    
-    if (!$this->$name) ends up as if(!0)...
-    
-    Fixes #11775
-    
-    (cherry picked from commit 08b94cea6346ebeb94edf98ecb5d7b7dd8555560)
+    Fix channel icons in mythweb. There was a typo which meant the services API call failed.
