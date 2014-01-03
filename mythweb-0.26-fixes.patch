@@ -1,214 +1,65 @@
- classes/Video.php                    | 14 ++++----
- modules/stream/stream_raw.pl         |  4 +++
- modules/video/handler.php            | 26 +++++++++-----
- modules/video/stream.php             | 69 ++++++++++++++++++++++++++++++++++++
- modules/video/tmpl/default/video.php |  2 +-
- mythweb.php                          |  2 +-
- 6 files changed, 101 insertions(+), 16 deletions(-)
+ includes/errors.php             |  6 +++---
+ modules/mythweb/set_session.php | 12 ++++++++++++
+ modules/tv/classes/Schedule.php |  2 +-
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/classes/Video.php b/classes/Video.php
-index 7995aa4..5c6f7e4 100644
---- a/classes/Video.php
-+++ b/classes/Video.php
-@@ -90,12 +90,14 @@ class Video {
-         $this->childid = $video['childid'];
-     // Figure out the URL
-         $this->url = '#';
--        if (file_exists('data/video/'))
--            $this->url = implode('/', array_map('rawurlencode',
--                                             array_map('utf8tolocal',
--                                             explode('/',
--                                             'data/video/' . preg_replace('#^'.$mythvideo_dir.'/?#', '', $this->filename)
--                                       ))));
-+    //// all junk, replacing
-+//        if (file_exists('data/video/'))
-+//            $this->url = implode('/', array_map('rawurlencode',
-+//                                             array_map('utf8tolocal',
-+//                                             explode('/',
-+//                                             'data/video/' . preg_replace('#^'.$mythvideo_dir.'/?#', '', $this->filename)
-+//                                       ))));
-+        $this->url = 'video/stream?Id=' . $this->intid;
-         $genre = $db->query('SELECT idgenre
-                                FROM videometadatagenre
-                               WHERE idvideo = ?',
-diff --git a/modules/stream/stream_raw.pl b/modules/stream/stream_raw.pl
-index 31f6854..6981bca 100755
---- a/modules/stream/stream_raw.pl
-+++ b/modules/stream/stream_raw.pl
-@@ -30,6 +30,10 @@
-         $type   = 'video/nuppelvideo';
-         $suffix = '.nuv';
-     }
-+    elsif ($basename =~ /\.mkv$/) {
-+        $type   = 'video/x-matroska';
-+        $suffix = '.mkv';
-+    }
-     else {
-         print header(),
-               "Unknown video type requested:  $basename\n";
-diff --git a/modules/video/handler.php b/modules/video/handler.php
-index fd769ce..721f186 100644
---- a/modules/video/handler.php
-+++ b/modules/video/handler.php
-@@ -15,8 +15,10 @@
-  * @global  string   $GLOBALS['mythvideo_dir']
-  * @name    $mythvideo_dir
+diff --git a/includes/errors.php b/includes/errors.php
+index 0434b7a..c24e71a 100644
+--- a/includes/errors.php
++++ b/includes/errors.php
+@@ -103,6 +103,9 @@
  /**/
--    global $mythvideo_dir;
--    $mythvideo_dir = setting('VideoStartupDir', hostname);
-+
-+//// dont need this...
-+//    global $mythvideo_dir;
-+//    $mythvideo_dir = setting('VideoStartupDir', hostname);
- 
- // Load the video storage directories
-     $video_dirs = $db->query_list('
-@@ -37,6 +39,7 @@
+     function error_handler($errno, $errstr, $errfile, $errline, $vars) {
+         global $db;
++    // Leave early if we haven't requested reports from this kind of error
++        if (!($errno & error_reporting()))
++            return;
+         if (class_exists('Translate'))
+             $errstr = Translate::find()->string($errstr);
+     // Try to auto-repair damaged SQL tables
+@@ -113,9 +116,6 @@
+             add_error('Regular Expression Error:  '.$match[1]);
+             return;
          }
-     }
- 
-+/** nor any of this...
- // Make sure the video directory exists
-     if (file_exists('data/video')) {
-     // File is not a directory or a symlink
-@@ -93,7 +96,7 @@
-                         .' reload this page.');
+-    // Leave early if we haven't requested reports from this kind of error
+-        if (!($errno & error_reporting()))
+-            return;
+     // Fatal errors should report considerably more detail
+         if (in_array($errno, array(E_USER_ERROR, E_ERROR))) {
+         // What type of error?
+diff --git a/modules/mythweb/set_session.php b/modules/mythweb/set_session.php
+index 7fd4270..334081c 100644
+--- a/modules/mythweb/set_session.php
++++ b/modules/mythweb/set_session.php
+@@ -22,6 +22,18 @@
+     // Change language?  Make sure we load the new translation file, too.
+         if ($_POST['language'] && $_POST['language'] != $_SESSION['language']){
+             $_SESSION['language'] = $_POST['language'];
++	    // Unset the date/time formats in session so translation can fill in the 
++	    // language specific defaults
++            unset($_SESSION['date_statusbar']);
++            unset($_SESSION['date_scheduled']);
++            unset($_SESSION['date_scheduled_popup']);
++            unset($_SESSION['date_recorded']);
++            unset($_SESSION['date_search']);
++            unset($_SESSION['date_listing_key']);
++            unset($_SESSION['date_listing_jump']);
++            unset($_SESSION['date_channel_jump']);
++            unset($_SESSION['date_job_status']);
++            unset($_SESSION['time_format']);
+             Translate::find()->load_translation();
          }
-     // Create a symlink to the first artwork directory that we find.
--    /** @todo we should really support multiple directories, but it's too much effort to hack in at the moment. */
-+    // @todo we should really support multiple directories, but it's too much effort to hack in at the moment.
-         else {
-             foreach ($artwork_dirs as $dir) {
-                 if (is_dir($dir) || is_link($dir)) {
-@@ -116,6 +119,7 @@
+ 
+diff --git a/modules/tv/classes/Schedule.php b/modules/tv/classes/Schedule.php
+index 0ad566d..6a9b8bc 100644
+--- a/modules/tv/classes/Schedule.php
++++ b/modules/tv/classes/Schedule.php
+@@ -274,7 +274,7 @@ class Schedule extends MythBase {
+  **/
+     public function merge($prog) {
+         foreach (get_object_vars($prog) as $name => $value) {
+-            if ($value && !$this->$name) {
++            if (isset($value) && !isset($this->$name)) {
+                 $this->$name = $value;
              }
          }
-     }
-+*/
- 
-     define('video_img_height',  _or(setting('web_video_thumbnail_height', hostname), 140));
-     define('video_img_width',   _or(setting('web_video_thumbnail_width', hostname),   94));
-@@ -125,11 +129,17 @@
-         case 'edit':
-             require_once 'modules/video/edit.php';
-             exit;
--        case 'imdb':
--            require_once 'modules/video/imdb.php';
--            exit;
--        case 'scan':
--            require_once 'modules/video/scan.php';
-+//// this is probably doing bad things
-+//        case 'imdb':
-+//            require_once 'modules/video/imdb.php';
-+//            exit;
-+//// this is broken, so disable it
-+//        case 'scan':
-+//            require_once 'modules/video/scan.php';
-+//            exit;
-+//// new stuff
-+        case 'stream':
-+            require_once 'modules/video/stream.php';
-             exit;
-     }
- 
-diff --git a/modules/video/stream.php b/modules/video/stream.php
-new file mode 100644
-index 0000000..49a7298
---- /dev/null
-+++ b/modules/video/stream.php
-@@ -0,0 +1,69 @@
-+<?php
-+/**
-+ * Stream a music file
-+ *
-+ * @license     GPL
-+ *
-+ * @package     MythWeb
-+ * @subpackage  Music
-+/**/
-+
-+// Yes, a db connection
-+    global $db;
-+
-+// Pull video ID
-+    $vid_id = $_GET['Id'];
-+
-+// Get filename
-+    list($fname) = $db->query_row('SELECT filename
-+                                     FROM videometadata
-+                                    WHERE intid = ?', $vid_id);
-+
-+// Mime type
-+    switch (substr($fname, strrpos($fname, '.'))) {
-+        case 'mpg':
-+        case 'mpeg':
-+            $mime = 'video/mpeg';
-+            break;
-+        case 'mp4':
-+            $mime = 'video/mp4';
-+            break;
-+        case 'ogg':
-+        case 'ogm':
-+        case 'ogv':
-+            $mime = 'video/ogg';
-+            break;
-+        case 'qt':
-+            $mime = 'video/quicktime';
-+            break;
-+        case 'webm':
-+            $mime = 'video/webm';
-+            break;
-+        case 'mkv':
-+            $mime = 'video/x-matroska';
-+            break;
-+        case 'wmv':
-+            $mime = 'video/x-ms-wmv';
-+            break;
-+        case 'flv':
-+            $mime = 'video/x-flv';
-+            break;
-+        default:
-+            $mime = 'applicatoin/octet-stream';
-+    }
-+    header('Content-Type: '.$mime);
-+
-+// Send the filename
-+    header('Content-Disposition: filename="'.$fname.'"');
-+
-+// Send data via the backend
-+    $Master_Host = setting('MasterServerIP');
-+    $port = _or(get_backend_setting('BackendStatusPort', $Master_Host),
-+                get_backend_setting('BackendStatusPort'));
-+    if (stripos($Master_Host,':') !== false) {
-+        $Master_Host = '['.$Master_Host.']';
-+    }
-+    readfile("http://$Master_Host:$port/Content/GetVideo?Id=".$vid_id);
-+
-+// Nothing else to do
-+    exit;
-diff --git a/modules/video/tmpl/default/video.php b/modules/video/tmpl/default/video.php
-index e80176e..ad7e9a9 100644
---- a/modules/video/tmpl/default/video.php
-+++ b/modules/video/tmpl/default/video.php
-@@ -252,7 +252,7 @@
- <table width="100%" border="0" cellpadding="4" cellspacing="2" class="list small">
- <tr class="menu">
- <td>
-- <span style="float: right"><input type="button" value="<?php echo t('Scan Collection'); ?>" class="submit" onclick="scan()"></span>
-+<!-- Bad! Don't do this! <span style="float: right"><input type="button" value="<?php echo t('Scan Collection'); ?>" class="submit" onclick="scan()"></span> -->
-  <form action="<?php echo root_url; ?>video" method="GET">
-   <?php echo t('Display'); ?>:
-   <select name="category" id="category" onchange="filter();">
-diff --git a/mythweb.php b/mythweb.php
-index bba2aa8..79ff196 100644
---- a/mythweb.php
-+++ b/mythweb.php
-@@ -30,7 +30,7 @@
-     if (Modules::getModule($Path[0])) {
-     // Add the current module directory to our search path, so modules can
-     // define includes, etc.
--        ini_set('include_path', ini_get('include_path').':'.modules_path.'/'.$Path[0]);
-+        ini_set('include_path', ini_get('include_path').PATH_SEPARATOR.modules_path.'/'.$Path[0]);
-     // Load the module handler
-         require_once 'handler.php';
-     }

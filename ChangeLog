@@ -1,21 +1,36 @@
-commit f82ca9521775edbbc53caf0f40f7bc183732dcc2
-Author: Karl Dietz <dekarl@users.sourceforge.net>
-Date:   Fri Aug 3 23:26:30 2012 +0200
+commit 33f0177459ded1ed3ca63c319bb825e3ee3a6d56
+Author: Martin Bene <myth@bene.priv.at>
+Date:   Sat Sep 14 16:27:22 2013 -0400
 
-    Use PATH_SEPARATOR rather than ':' in mythweb.php.
+    Fix MythWeb's date/time handling
     
-    Fixes #10791
+    The code in question has partially changed so I am applying part of Martin's patch
+    (the section that clears to session variables) to fix the problem.
     
-    Signed-off-by: Raymond Wagner <rwagner@mythtv.org>
-    (cherry picked from commit f9f5a1f43f2ddfeaa038054226f6ac0aa0b973e6)
+    Thank you Martin!
+    
+    Refs #9833
+    
+    Signed-off-by: Nicolas Riendeau <nriendeau@mythtv.org>
 
-commit 4fd9d5e05065c31e574e69251f872b1f53b7b027
-Author: R.D. Vaughan <r.d.vaughan@rogers.com>
-Date:   Tue Oct 16 06:00:31 2012 -0400
+commit 7326d7ef70fb86037d9c30ca7e0762d0cb01b7ff
+Author: Scott Shawcroft <scott.shawcroft@gmail.com>
+Date:   Tue Aug 27 22:34:55 2013 -0400
 
-    Add recognition of mkv containers to MythWeb for raw streaming.
+    Fix the problem of MythWeb failing to load translations
     
-    Fixes #11180
+    Refs #11513
     
-    Signed-off-by: Raymond Wagner <rwagner@mythtv.org>
-    (cherry picked from commit ce2368132f823284588b02f8a1f66e0576d8c107)
+    Signed-off-by: Nicolas Riendeau <nriendeau@mythtv.org>
+
+commit 5d8ffe109286269ada87390a2b74e142ec36e364
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Mon Aug 26 22:39:35 2013 +0200
+
+    fix merge in schedule templates added in f97529656
+    
+    if (!$this->$name) ends up as if(!0)...
+    
+    Fixes #11775
+    
+    (cherry picked from commit 08b94cea6346ebeb94edf98ecb5d7b7dd8555560)

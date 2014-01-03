@@ -1,20 +1,15 @@
-# Mythweb from github.com
-# git hash for archive
-%global githash1 g4dcd253
-%global githash2 4e9fd7a
-
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 Group:          Applications/Multimedia
 
-Version:        0.26.0
-Release:        2%{?dist}
+Version:        0.26.1
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
 # https://github.com/MythTV/mythweb/tarball/v0.25
-Source0:        MythTV-mythweb-v%{version}-0-%{githash1}.tar.gz
+Source0:        mythweb-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
 
@@ -44,7 +39,7 @@ The web interface to MythTV.
 
 
 %prep
-%setup -q -n MythTV-mythweb-%{githash2}
+%setup -q 
 %patch0 -p1
 
 # Fix directory permissions
@@ -79,6 +74,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Fri Jan  3 2014 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-1
+- Update to latest fixes/0.26 release.
+
 * Sat Dec 08 2012 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-2
 - Update to latest upstream release.
 
