@@ -1,10 +1,10 @@
-%global ver_string v0.27.3
+%global ver_string v0.27.4
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        0.27.3
+Version:        0.27.4
 Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
@@ -105,6 +105,9 @@ fi
 
 
 %changelog
+* Thu Oct 23 2014 Richard Shaw <hobbes1069@gmail.com> - 0.27.4-1
+- Update to latest upstream release.
+
 * Sun Jul 27 2014 Richard Shaw <hobbes1069@gmail.com> - 0.27.3-1
 - Update to latest upstream release.
 
