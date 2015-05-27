@@ -1,0 +1,260 @@
+ modules/_shared/lang/Spanish.lang | 8 ++++----
+ modules/tv/get_show_details.php   | 4 ++--
+ skins/clean_blue/programming.css  | 8 ++++----
+ skins/default/programming.css     | 8 ++++----
+ skins/elkin/programming.css       | 8 ++++----
+ skins/grey/programming.css        | 8 ++++----
+ skins/haze_dark/programming.css   | 8 ++++----
+ skins/haze_light/programming.css  | 8 ++++----
+ skins/wap/handheld.css            | 6 +++---
+ skins/wap/style.css               | 8 ++++----
+ 10 files changed, 37 insertions(+), 37 deletions(-)
+
+diff --git a/modules/_shared/lang/Spanish.lang b/modules/_shared/lang/Spanish.lang
+index 8758a65..5a23a6d 100644
+--- a/modules/_shared/lang/Spanish.lang
++++ b/modules/_shared/lang/Spanish.lang
+@@ -360,7 +360,7 @@
+ "Don't Record"
+     No grabar
+ "Don't record this program."
+-    No borrar este programa
++    No grabar este programa
+ "Done, Unknown Status"
+     Terminado, Estado Desconocido
+ "Down"
+@@ -894,7 +894,7 @@
+ "recstatus: willrecord"
+     estado: se grabará
+ "rectype-long: always"
+-    rectype-long: siempre
++    Grabar a cualquier hora y y canal.
+ "rectype-long: daily"
+     rectype-long: diario
+ "rectype-long: dontrec"
+@@ -902,11 +902,11 @@
+ "rectype-long: finddaily"
+     rectype-long: buscar diario
+ "rectype-long: findone"
+-    rectype-long: buscar uno
++    Encontrar y grabar un episodio con este titulo.
+ "rectype-long: findweekly"
+     rectype-long: buscar semana
+ "rectype-long: once"
+-    rectype-long: una vez
++    Grabar solo este episodio.
+ "rectype-long: override"
+     rectype-long: excepción
+ "rectype-long: weekly"
+diff --git a/modules/tv/get_show_details.php b/modules/tv/get_show_details.php
+index 1ac0dec..23b53f0 100644
+--- a/modules/tv/get_show_details.php
++++ b/modules/tv/get_show_details.php
+@@ -1,8 +1,8 @@
+ <?php
+ // Attempt to force some caching, will make secondary views so much faster.
+-    header('Cache-Control: max-age-'.($_REQUEST['starttime'] - time() + 604800));
++    header('Cache-Control: max-age=7200, public');
+     header('Pragma: ');
+-    header('Expires: '.date('D, d M Y H:i:s e', $_REQUEST['starttime'] + 604800));
++    header('Expires: '.date('D, d M Y H:i:s e', time() + 7200));
+     header('Content-Type: application/json');
+ 
+     $program = load_one_program($_REQUEST['starttime'], $_REQUEST['chanid'], false);
+diff --git a/skins/clean_blue/programming.css b/skins/clean_blue/programming.css
+index 14bf223..fd97019 100644
+--- a/skins/clean_blue/programming.css
++++ b/skins/clean_blue/programming.css
+@@ -110,6 +110,10 @@
+ .ManualOverride           { color: #D03060; }
+ .Overlap                  { color: #FF0000; }
+ 
++.type_movie         { background-color: #809090; }
++.type_series        { background-color: #C0C0C0; }
++.type_tvshow        { }
++
+ .cat_Action         { background-color: #A6A38A; }
+ .cat_Adult          { background-color: #FF0066; }
+ .cat_Animals        { background-color: #33FF66; }
+@@ -143,10 +147,6 @@
+ .cat_Western        { background-color: #806040; }
+ .cat_Unknown        { background-color: #9999FF; }
+ 
+-.cat_movie          { background-color: #809090 !important; }
+-.cat_series         { background-color: #C0C0C0; }
+-.cat_tvshow         { }
+-
+ .tv_Cine           { background-color: blue;            }
+ .tv_Classic        { background-color: gray;            }
+ .tv_Collectibles   { background-color: #708090;         }
+diff --git a/skins/default/programming.css b/skins/default/programming.css
+index 4c1789c..62cc9b3 100644
+--- a/skins/default/programming.css
++++ b/skins/default/programming.css
+@@ -101,6 +101,10 @@
+ .ManualOverride           { color: #D03060; }
+ .Overlap                  { color: #FF0000; }
+ 
++.type_movie         { background-color: #809090; }
++.type_series        { }
++.type_tvshow        { }
++
+ .cat_Action         { background-color: #906020; }
+ .cat_Adult          { background-color: #702020; }
+ .cat_Animals        { background-color: #609060; }
+@@ -134,10 +138,6 @@
+ .cat_Western        { background-color: #806040; }
+ .cat_Unknown        { background-color: #303030; }
+ 
+-.cat_movie          { background-color: #809090 !important; }
+-.cat_series         { }
+-.cat_tvshow         { }
+-
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: blue;            }
+ .tv_Classic        { background-color: gray;            }
+diff --git a/skins/elkin/programming.css b/skins/elkin/programming.css
+index 2b21966..6a72a1f 100644
+--- a/skins/elkin/programming.css
++++ b/skins/elkin/programming.css
+@@ -105,6 +105,10 @@
+ .ManualOverride           { color: #D03060; }
+ .Overlap                  { color: #FF0000; }
+ 
++.type_movie         { background-color: #CCCC00; }
++.type_series        { }
++.type_tvshow        { }
++
+ .cat_Action         { background-color: #FFCC66; }
+ .cat_Adult          { background-color: #FF9999; }
+ .cat_Animals        { background-color: #CCFF33; }
+@@ -138,10 +142,6 @@
+ .cat_Western        { background-color: #806040; }
+ .cat_Unknown        { background-color: #FFFFFF; }
+ 
+-.cat_movie          { background-color: #CCCC00 !important; }
+-.cat_series         { }
+-.cat_tvshow         { }
+-
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: blue;            }
+ .tv_Classic        { background-color: gray;            }
+diff --git a/skins/grey/programming.css b/skins/grey/programming.css
+index d15046f..401731b 100644
+--- a/skins/grey/programming.css
++++ b/skins/grey/programming.css
+@@ -47,6 +47,10 @@
+ .ManualOverride           { color: #D03060; }
+ .Overlap                  { color: #FF0000; }
+ 
++.type_movie         { background-color: #809090; }
++.type_series        { }
++.type_tvshow        { }
++
+ .cat_Action         { background-color: #906020; }
+ .cat_Adult          { background-color: #702020; }
+ .cat_Animals        { background-color: #609060; }
+@@ -80,10 +84,6 @@
+ .cat_Western        { background-color: #806040; }
+ .cat_Unknown        { background-color: #303030; }
+ 
+-.cat_movie          { background-color: #809090 !important; }
+-.cat_series         { }
+-.cat_tvshow         { }
+-
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: blue;            }
+ .tv_Classic        { background-color: gray;            }
+diff --git a/skins/haze_dark/programming.css b/skins/haze_dark/programming.css
+index 5c70a13..b261eca 100644
+--- a/skins/haze_dark/programming.css
++++ b/skins/haze_dark/programming.css
+@@ -49,6 +49,10 @@
+ .manualOverride           { color: #D03060; }
+ .overlap                  { color: #FF0000; }
+ 
++.type_movie         { background-color: #A31418; } /*hsl(358,78%,36%)*/
++.type_series        { }
++.type_tvshow        { }
++
+ .cat_Action         { background-color: #6B1E0F; } /*hsl(10,75%,24%)*/
+ .cat_Adult          { background-color: #A34614; } /*hsl(21,78%,36%)*/
+ .cat_Animals        { background-color: #6B400F; } /*hsl(32,75%,24%)*/
+@@ -82,10 +86,6 @@
+ .cat_Western        { background-color: #6B0F23; } /*hsl(347,75%,24%)*/
+ .cat_Unknown        { background-color: #303030; } /*hsl(0,0%,19%)*/
+ 
+-.cat_movie          { background-color: #A31418; !important; } /*hsl(358,78%,36%)*/
+-.cat_series         { }
+-.cat_tvshow         { }
+-
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: blue;            }
+ .tv_Classic        { background-color: gray;            }
+diff --git a/skins/haze_light/programming.css b/skins/haze_light/programming.css
+index edac335..df28937 100644
+--- a/skins/haze_light/programming.css
++++ b/skins/haze_light/programming.css
+@@ -49,6 +49,10 @@
+ .manualOverride           { color: #D03060; }
+ .overlap                  { color: #FF0000; }
+ 
++.type_movie         { background-color: #F8B3B5; } /*hsl(358,85%,84%)*/
++.type_series        { }
++.type_tvshow        { }
++
+ .cat_Action         { background-color: #FBCEC4; } /*hsl(10,90%,88%)*/
+ .cat_Adult          { background-color: #F8CBB3; } /*hsl(21,85%,84%)*/
+ .cat_Animals        { background-color: #FBE2C4; } /*hsl(32,90%,88%)*/
+@@ -82,10 +86,6 @@
+ .cat_Western        { background-color: #FBC4D0; } /*hsl(347,90%,88%)*/
+ .cat_Unknown        { background-color: #EDEDED; } /*hsl(0,0%,93%)*/
+ 
+-.cat_movie          { background-color: #F8B3B5; !important; } /*hsl(358,85%,84%)*/
+-.cat_series         { }
+-.cat_tvshow         { }
+-
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: blue;            }
+ .tv_Classic        { background-color: gray;            }
+diff --git a/skins/wap/handheld.css b/skins/wap/handheld.css
+index 12ed3a7..51d809a 100644
+--- a/skins/wap/handheld.css
++++ b/skins/wap/handheld.css
+@@ -172,9 +172,9 @@ TextArea {
+ .cat_Western        { background-color: #806040 }
+ .cat_Unknown        { background-color: #303030 }
+ 
+-.cat_movie          { background-color: #809090 !important; }
+-.cat_series         { }
+-.cat_tvshow         { }
++.type_movie         { background-color: #809090 !important; }
++.type_series        { }
++.type_tvshow        { }
+ 
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: Blue }
+diff --git a/skins/wap/style.css b/skins/wap/style.css
+index 95ead32..fef7df3 100644
+--- a/skins/wap/style.css
++++ b/skins/wap/style.css
+@@ -172,9 +172,9 @@ TextArea {
+ .cat_Western        { background-color: #806040 }
+ .cat_Unknown        { background-color: #303030 }
+ 
+-.cat_movie          { background-color: #809090 !important; }
+-.cat_series         { }
+-.cat_tvshow         { }
++.type_movie         { background-color: #809090 !important; }
++.type_series        { }
++.type_tvshow        { }
+ 
+ /* deprecated show categories that need to be integreted into the above list via regex, or have new categories created for them */
+ .tv_Cine           { background-color: Blue }
+@@ -184,4 +184,4 @@ TextArea {
+ .tv_Movies         { background-color: Blue }
+ .tv_Serie          { background-color: DarkOrchid }
+ .tv_SHOW           { background-color: sienna }
+-.tv_Tiempo         { background-color: #33ff99 }
+\ No newline at end of file
++.tv_Tiempo         { background-color: #33ff99 }

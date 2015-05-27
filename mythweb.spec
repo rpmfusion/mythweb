@@ -1,11 +1,11 @@
-%global ver_string v0.27.4
+%global vers_string v0.27.4-4-g799db43
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        0.27.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -39,7 +39,7 @@ The web interface to MythTV.
 
 %prep
 %setup -q -n %{name}-%{version}
-#patch0 -p1
+%patch0 -p1
 
 # Fix directory permissions
 #find ./ -type d -exec chmod 0755 {} \;
@@ -105,6 +105,9 @@ fi
 
 
 %changelog
+* Wed May 27 2015 Richard Shaw <hobbes1069@gmail.com> - 0.27.4-2
+- Update to latest fixes release.
+
 * Thu Oct 23 2014 Richard Shaw <hobbes1069@gmail.com> - 0.27.4-1
 - Update to latest upstream release.
 
