@@ -1,0 +1,52 @@
+commit 799db438533acd7fed7b9137b63badb6f163b7da
+Author: Jim Stichnoth <jstichnoth@mythtv.org>
+Date:   Sun May 3 14:35:19 2015 -0700
+
+    Move .type_* entries above .cat_* entries.  Refs #12351
+    
+    This makes categories take precedence over types when deciding on
+    colors, resulting in a more colorful (and easier to read) search
+    results page.
+    
+    (cherry picked from commit cb588d870f215a4e65854a4665cc01b95dc4547e)
+
+commit c50228f1b8505ca5d4420ae5a696b08d4fb9c909
+Author: Alex Tomlins <alex@tomlins.org.uk>
+Date:   Wed Mar 18 22:14:53 2015 +0000
+
+    Reduce cache headers for program details ajax popup.
+    
+    As it stands, these are being set to 10 days beyond the program start
+    time.  This means that mythweb will often show stale data for programs
+    that have been updated since they were initially added to the guide.
+    
+    This reduces the cache time to 2 hours, which seems like a reasonable
+    time to cache for, yet still get timely updates.
+    
+    Fixes #12415
+    
+    (cherry picked from commit 97a33211bd8d4dee6e0badb88760f07d66fe5d40)
+
+commit a8c6695bc851887ed6d9ae565b9c2788f1d60a6a
+Author: Josu Lazkano <josu.lazkano@gmail.com>
+Date:   Sat Apr 4 16:34:34 2015 -0400
+
+    Spanish MythWeb translation update
+    
+    OKed by the Spanish translation maintainer, Antonion Marcos Lopez Alonso.
+    
+    Thank you Josu!
+    
+    Close #12353
+
+commit e0c2a3aea94bc96be5836472a1c53e62b5e43c93
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Thu Jan 22 20:57:13 2015 +0100
+
+    unbreak guide colors based on category_type
+    
+    It appears as if changes around other areas of the guide code uncovered
+    this issue which has been around for a long time.
+    
+    Fixes #12351
+    (cherry picked from commit 1b86b5763e4c55bed4428bb227079a1ce0568e80)
