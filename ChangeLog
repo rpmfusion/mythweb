@@ -1,0 +1,11 @@
+commit 7cefc58290d5ef2fc02ebf7e0d51b9532f2f8828
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Sun Feb 7 19:12:28 2016 +0100
+
+    fix syntax error after f4240e5e48f25fa40e84faabffa5522b009ab6e0
+    
+    pointed out by Piotr Oniszczuk
+    
+    Refs #12588
+    
+    (cherry picked from commit 93adb4d962a27352fd1cf772d46af59d1b201090)
