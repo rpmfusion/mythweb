@@ -1,11 +1,78 @@
-commit 7cefc58290d5ef2fc02ebf7e0d51b9532f2f8828
+commit a1f2cdf03978427eaa9e35fa18162a0ba6be829d
 Author: Karl Dietz <dekarl@mythtv.org>
-Date:   Sun Feb 7 19:12:28 2016 +0100
+Date:   Thu Apr 28 07:52:51 2016 +0200
 
-    fix syntax error after f4240e5e48f25fa40e84faabffa5522b009ab6e0
+    avoid returning one copy of each program per person in the cast/crew
     
-    pointed out by Piotr Oniszczuk
+    (cherry picked from commit e3e1138f0fc652cc82adc74cf3c1c2b150660a06)
+
+commit 554d7e5212cac5d1f857db061fac16b7ef4368e7
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Thu Apr 28 07:51:05 2016 +0200
+
+    don't mix JOIN ON and JOIN USING in one query
     
-    Refs #12588
+    (cherry picked from commit 51a7da64952eee5924b02bafda5867f425fcd6c7)
+
+commit 977563289052c975372db13a2a4078212f85fed0
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Mon Apr 25 00:02:49 2016 +0200
+
+    rewrite getAspect to use new recordedfile table
     
-    (cherry picked from commit 93adb4d962a27352fd1cf772d46af59d1b201090)
+    (cherry picked from commit 305b8a1a859fe78c382d185339bdb2b81576b2df)
+
+commit f1cb29b0b20586c959c5c2d33ed2b3853dab3f12
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Sun Apr 24 23:18:21 2016 +0200
+
+    remove grouping from SQL when loading programs
+    
+    to work with the new defaults of MySQL 5.7.
+    Should reenable with e.g. ANY_VALUE or rewrite to use the Service API.
+    
+    Refs #12713
+    
+    (cherry picked from commit 24e5d7616bb28007b0b99f3055385af4921aba81)
+
+commit 0c07a6f3aae60ecc694966c32d0ca4757045edc5
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Sun Apr 24 21:13:40 2016 +0200
+
+    use NULL instead of ZERO datetime when saving to recording rules
+    
+    for MySQL 5.7
+    Refs #12713
+    
+    (cherry picked from commit 55ade6f31ae227f8a8344192614eb52e9893b8aa)
+
+commit cbca6cf230d2c4e2a68a3f63c0b482ec4a2e41cb
+Author: Charles Bovy <charles.bovy@gmail.com>
+Date:   Sat Apr 23 17:38:46 2016 +0100
+
+    Fixes #12670. Ensure fine tune is set and not empty
+    
+    Signed-off-by: Stuart Auchterlonie <stuarta@mythtv.org>
+    (cherry picked from commit 791b17285de13d94169ffd9c09103a71c684b216)
+
+commit 82c458123fd243cef9ce874e955e1a72fcc6e4a4
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Tue Apr 19 08:13:37 2016 +0200
+
+    unbreak "don't record" and getAspect()
+    
+    Refs #12713
+    
+    (cherry picked from commit 0ce44f7892249c953e15b45bfbe68387806ad8b3)
+
+commit 74e21c9a3bdb8d695373918f67b681e899ca8427
+Author: Karl Dietz <dekarl@mythtv.org>
+Date:   Tue Apr 12 23:34:13 2016 +0200
+
+    use full group by for listing view
+    
+    MySQL 5.7 enables ONLY_FULL_GROUP_BY by default
+    
+    Refs #12713
+    
+    (cherry picked from commit 659c0f39051ca901a526418d702a23afd175e8aa)

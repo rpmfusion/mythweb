@@ -1,11 +1,11 @@
-%global vers_string v0.27.6
+%global vers_string v0.28-8-ga1f2cdf
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        0.27.6
-Release:        2%{?dist}
+Version:        0.28
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -15,7 +15,7 @@ Source2:        ChangeLog
 
 # Patch generated from mythweb fixes branch. From mythweb git directory:
 # git diff -p --stat %{version} > mythweb-fixes.patch
-Patch0:         mythweb-0.27-fixes.patch
+Patch0:         mythweb-0.28-fixes.patch
 
 # The following are required only in mythweb is running on the same computer
 # as the backend. They will be pulled in by the mythtv meta package anyway.
@@ -40,9 +40,6 @@ The web interface to MythTV.
 %setup -q -n %{name}-%{version}
 %patch0 -p1
 
-# Fix directory permissions
-#find ./ -type d -exec chmod 0755 {} \;
-
 # Non-executable scripts don't need shebangs
 sed -i modules/coverart/handler.pl -e '/\/usr\/bin\/perl/d'
 
@@ -61,12 +58,12 @@ cp -a * %{buildroot}%{_datadir}/mythweb/
 # data dir needs to be a directory suitable for writing
 mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
 mv %{buildroot}%{_datadir}/%{name}/data %{buildroot}%{_sharedstatedir}/%{name}/
-pushd %{buildroot}%{_datadir}/%{name}
-ln -s ../../..%{_sharedstatedir}/%{name}/data
+ln -sr %{buildroot}%{_sharedstatedir}/%{name}/data \
+       %{buildroot}%{_datadir}/%{name}
 
 # Install httpd config
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
-cp %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
+install -pm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
 
 # Remove stuff covered by %%doc
 rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
@@ -96,7 +93,8 @@ fi
 
 
 %files
-%doc README LICENSE ChangeLog
+%doc README ChangeLog
+%license LICENSE
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/mythweb.conf
 %{_datadir}/%{name}/
 %defattr(-,apache,apache,0755)
@@ -104,6 +102,12 @@ fi
 
 
 %changelog
+* Tue May  3 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-2
+- Update to latest fixes.
+
+* Tue Apr 19 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-1
+- Update to latest fixes.
+
 * Fri Feb 19 2016 Richard Shaw <hobbes1069@gmail.com> - 0.27.6-2
 - Update to latest fixes.
 
