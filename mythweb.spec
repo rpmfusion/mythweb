@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        0.28
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -24,7 +24,7 @@ Patch0:         mythweb-0.28-fixes.patch
 
 Requires:       httpd
 Requires:       php >= 5.1
-Requires:       php-mysql
+Requires:       php-mysqli
 Requires:       php-process
 Requires:       php-MythTV >= %{version}
 Requires:       mythffmpeg
@@ -102,6 +102,11 @@ fi
 
 
 %changelog
+* Thu Sep 08 2016 Sérgio Basto <sergio@serjux.com> - 0.28-2
+- v0.28-rc1 already support mysqli, https://code.mythtv.org/trac/ticket/12588
+  Requires php-mysqli, because in php7, "php-mysql" package and "mysql.so"
+  extension have been removed.
+
 * Tue May  3 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-2
 - Update to latest fixes.
 
@@ -142,7 +147,7 @@ fi
 * Fri Aug 23 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-1
 - Update to latest upstream version.
 
-* Mon Aug 13 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-5
+* Tue Aug 13 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-5
 - Update to latest fixes.
 - Patch for NoTrans issue with php in Fedora 19 and up. (Fixes #2856)
 
