@@ -1,3 +1,57 @@
+commit 3fa642f00da9529674ea93110396d036da1d43ff
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Mon Oct 10 14:40:18 2016 -0400
+
+    Add mythweb dir to @INC.
+    
+    Fixes #12895
+    
+    Signed-off-by: Peter Bennett <pbennett@mythtv.org>
+    (cherry picked from commit e902c9788b1d405b0facfabd5b80ca49aaa83add)
+
+commit 1b75720192fc4c76a03d2b81e40f4d44cb339cd0
+Author: Michael T. Dean <mdean@mythtv.org>
+Date:   Mon Oct 10 14:16:15 2016 -0400
+
+    Set the SQL mode when connecting to the database.
+    
+    Fixes #12811
+    
+    Signed-off-by: Peter Bennett <pbennett@mythtv.org>
+    (cherry picked from commit f02e5e264f61c1fcac3ead2e4cb86d9592e7d1ef)
+
+commit 32147cf4ce6ea55946c11135ebc81552d71c919c
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Thu Sep 15 15:55:08 2016 +0100
+
+    Fixes #12878. Use mythtv time, not unixtime to 'activate' a recording
+    
+    (cherry picked from commit 07441af9ee7bd5371323309b32456f510b7106ec)
+
+commit 291d3308f074a8e0918fbac529fb9e1014f9ad8c
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Thu Sep 15 14:18:56 2016 +0100
+
+    Fixes #12868. inetref cannot be NULL
+    
+    (cherry picked from commit 7b469b2fa6408f178e19726f67a5797e58b244c8)
+
+commit f80f8db0c03eb83d1313f3ff2ac2a6e19af65d2d
+Author: Ian Campbell <ijc@hellion.org.uk>
+Date:   Wed Jul 20 10:35:39 2016 +0100
+
+    Refs #12752 - [mythweb] Avoid double quoting sql
+    
+    $db->escape already wraps the result in 's so there is no need to do it in the
+    caller.
+    
+    This is a little complicated in searchMusic since the %'s need to be inside the
+    quoting but we do not want them to be escaped themselves. Concat them with the
+    search term using a SQL CONCAT().
+    
+    Signed-off-by: Stuart Auchterlonie <stuarta@mythtv.org>
+    (cherry picked from commit d2469d2e3978a1288f79157990cf015d421d95d4)
+
 commit a1f2cdf03978427eaa9e35fa18162a0ba6be829d
 Author: Karl Dietz <dekarl@mythtv.org>
 Date:   Thu Apr 28 07:52:51 2016 +0200
