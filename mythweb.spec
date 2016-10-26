@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        0.28
-Release:        4%{?dist}
+Release:        5%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -16,6 +16,9 @@ Source2:        ChangeLog
 # Patch generated from mythweb fixes branch. From mythweb git directory:
 # git diff -p --stat %{version} > mythweb-fixes.patch
 Patch0:         mythweb-0.28-fixes.patch
+
+# This is needed for perl dependency auto-detection
+BuildRequires:  perl-generators
 
 # The following are required only in mythweb is running on the same computer
 # as the backend. They will be pulled in by the mythtv meta package anyway.
@@ -102,6 +105,10 @@ fi
 
 
 %changelog
+* Wed Oct 26 2016 Paul Howarth <paul@city-fan.org> - 0.28-5
+- BR: perl-generators for proper dependency generation
+  (https://fedoraproject.org/wiki/Changes/Build_Root_Without_Perl)
+
 * Wed Oct 19 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-4
 - Update to latest fixes.
 
@@ -147,7 +154,7 @@ fi
 * Fri Aug 23 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-1
 - Update to latest upstream version.
 
-* Mon Aug 13 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-5
+* Tue Aug 13 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-5
 - Update to latest fixes.
 - Patch for NoTrans issue with php in Fedora 19 and up. (Fixes #2856)
 
