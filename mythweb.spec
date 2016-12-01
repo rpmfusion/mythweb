@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        0.28
-Release:        5%{?dist}
+Release:        6%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -72,27 +72,27 @@ install -pm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
 rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
-%pretrans
-# If this is an upgrade
-if [ $1 -eq 0 ] ; then
-    # If data exists and is a directory then we need move it out of the way.
-    if [ -d "%{_datadir}/%{name}/data" ] ; then
-        mv %{_datadir}/%{name}/data %{_datadir}/%{name}/_tmp_data
-    fi
-fi
+#%pretrans
+## If this is an upgrade
+#if [ $1 -eq 0 ] ; then
+#    # If data exists and is a directory then we need move it out of the way.
+#    if [ -d "%{_datadir}/%{name}/data" ] ; then
+#        mv %{_datadir}/%{name}/data %{_datadir}/%{name}/_tmp_data
+#    fi
+#fi
 
-%posttrans
-# If this is an upgrade
-if [ $1 -eq 0 ] ; then
-    # If there is data to migrate, let's do it
-    if [ -e "%{_datadir}/%{name}/_tmp_data" ] ; then
-        cp -p %{_datadir}/%{name}/_tmp_data/cache/* \
-              %{_sharedstatedir}/%{name}/data/cache/ &> /dev/null || :
-        cp -p %{_datadir}/%{name}/_tmp_data/tv_icons/* \
-              %{_sharedstatedir}/%{name}/data/tv_icons/ &> /dev/null || :
-        rm -rf %{_datadir}/%{name}/_tmp_data
-    fi
-fi
+#%posttrans
+## If this is an upgrade
+#if [ $1 -eq 0 ] ; then
+#    # If there is data to migrate, let's do it
+#    if [ -e "%{_datadir}/%{name}/_tmp_data" ] ; then
+#        cp -p %{_datadir}/%{name}/_tmp_data/cache/* \
+#              %{_sharedstatedir}/%{name}/data/cache/ &> /dev/null || :
+#        cp -p %{_datadir}/%{name}/_tmp_data/tv_icons/* \
+#              %{_sharedstatedir}/%{name}/data/tv_icons/ &> /dev/null || :
+#        rm -rf %{_datadir}/%{name}/_tmp_data
+#    fi
+#fi
 
 
 %files
@@ -100,11 +100,15 @@ fi
 %license LICENSE
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/mythweb.conf
 %{_datadir}/%{name}/
-%defattr(-,apache,apache,0755)
-%{_sharedstatedir}/%{name}/
+%attr(-,apache,apache) %{_sharedstatedir}/%{name}/
 
 
 %changelog
+* Thu Dec  1 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-6
+- Remove obsolete scripts. Since data was moved to /var/lib data migration is
+  no longer necessary.
+- Fixes RFBZ#4357.
+
 * Wed Oct 26 2016 Paul Howarth <paul@city-fan.org> - 0.28-5
 - BR: perl-generators for proper dependency generation
   (https://fedoraproject.org/wiki/Changes/Build_Root_Without_Perl)
@@ -140,42 +144,3 @@ fi
 
 * Fri May 16 2014 Richard Shaw <hobbes1069@gmail.com> - 0.27-2
 - Update to latest fixes release.
-
-* Mon Oct 28 2013 Richard Shaw <hobbes1069@gmail.com> - 0.27-1
-- Update to 0.27 at latest fixes release.
-- Make mythweb write to a more appropriate directory.
-
-* Mon Sep 30 2013 Nicolas Chauvet <kwizart@gmail.com> - 0.26.1-3
-- Rebuilt
-
-* Mon Sep  2 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-2
-- Update to latest upstream release.
-
-* Fri Aug 23 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.1-1
-- Update to latest upstream version.
-
-* Tue Aug 13 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-5
-- Update to latest fixes.
-- Patch for NoTrans issue with php in Fedora 19 and up. (Fixes #2856)
-
-* Fri Jan 11 2013 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-3
-- Update mythweb config to work with apache 2.4.
-
-* Sat Dec 08 2012 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-2
-- Update to latest upstream release.
-
-* Sun Oct 28 2012 Richard Shaw <hobbes1069@gmail.com> - 0.26.0-1
-- Update to latest upstream release.
-
-* Mon Jul 30 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.2-1
-- Update to latests release.
-
-* Fri Jul 06 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.1-3
-- Patch for PHP 5.4 warnings.
-
-* Sun Jul 01 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.1-2
-- Lots of tweaks per review request:
-  https://bugzilla.rpmfusion.org/show_bug.cgi?id=2366
-
-* Tue Jun 05 2012 Richard Shaw <hobbes1069@gmail.com> - 0.25.1-1
-- Initial package split of mythweb from mythtv.
