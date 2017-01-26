@@ -1,0 +1,318 @@
+ classes/Database.php               |  2 ++
+ modules/music/mp3act_functions.php | 16 ++++++------
+ modules/tv/classes/Channel.php     |  8 +++---
+ modules/tv/classes/Program.php     | 52 ++++++++++++++------------------------
+ modules/tv/classes/Schedule.php    |  6 ++---
+ modules/tv/includes/programs.php   | 17 +++++++------
+ modules/tv/set_channels.php        |  2 +-
+ mythweb.pl                         |  3 +++
+ 8 files changed, 49 insertions(+), 57 deletions(-)
+
+diff --git a/classes/Database.php b/classes/Database.php
+index 92aa7b0..82da9d8 100644
+--- a/classes/Database.php
++++ b/classes/Database.php
+@@ -120,6 +120,8 @@ class Database {
+             $class = "Database_$engine";
+             $dbh = new $class($db_name, $login, $password, $server, $port, $options);
+         }
++    // Set SQL mode
++        $dbh->query('SET SESSION sql_mode = "";');
+     // Set database connection to utf8
+         $dbh->query('SET NAMES utf8;');
+     // Make sure UNIX_TIMESTAMP AND FROM_UNIXTIME do the right things
+diff --git a/modules/music/mp3act_functions.php b/modules/music/mp3act_functions.php
+index b6fc7e0..9d2780c 100644
+--- a/modules/music/mp3act_functions.php
++++ b/modules/music/mp3act_functions.php
+@@ -33,7 +33,7 @@ function GarbageCollector()
+     if (0 == mt_rand(0, 30))
+     {
+         $query = 'DELETE FROM music_playlists '.
+-            "WHERE playlist_name='".$db->escape('MythWeb Temporary Playlist')."'".
++            "WHERE playlist_name=".$db->escape('MythWeb Temporary Playlist').
+             ' AND (NOW() - last_accessed) > ('.MYTH_PLAYLIST_SAVE_TIME.');';
+         $sh = $db->query($query);
+         $sh->finish();
+@@ -217,7 +217,7 @@ function buildBreadcrumb($page, $parent, $parentitem, $child, $childitem)
+ function musicLookup($type, $itemid)
+ {
+   global $db;
+-  $sql_itemid = "'".$db->escape($itemid)."'";
++  $sql_itemid = $db->escape($itemid);
+   switch($type)
+   {
+     case 'browse':
+@@ -279,7 +279,7 @@ function musicLookup($type, $itemid)
+                    "FROM music_artists " .
+                    "GROUP BY artist_name_sort " .
+                    "HAVING artist_name_sort " .
+-                   "LIKE '" . $db->escape($itemid.'%') . "' " .
++                   "LIKE " . $db->escape($itemid.'%') . " " .
+                    "ORDER BY artist_name_sort";
+       }
+       $sh = $db->query($query);
+@@ -1008,7 +1008,7 @@ function getRandItems($type)
+ function searchMusic($terms, $option)
+ {
+   global $db;
+-  $sql_terms = "'%".$db->escape($terms)."%'";
++  $sql_terms = "CONCAT('%', ".$db->escape($terms).", '%')";
+   $query = 'SELECT ms.song_id, ma.album_name, ms.track, mt.artist_name, ms.name, ms.rating, '.
+     'SEC_TO_TIME(ms.length/1000) AS length, genre '.
+     'FROM music_songs AS ms '.
+@@ -1111,14 +1111,14 @@ function internalUpdatePlaylist($songs, $count, $length)
+   $songlist = implode(',', $songs);
+ 
+   $query = 'music_playlists SET'.
+-    " playlist_songs='".$db->escape($songlist)."'".
++    " playlist_songs=".$db->escape($songlist).
+     ',length='.$db->escape($length).
+     ',songcount='.$db->escape($count);
+ 
+   if (empty($plId))
+   {
+     $query = 'INSERT INTO '.$query.
+-      ",hostname='".$db->escape('mythweb-'.$_SERVER['SERVER_NAME'])."'".
++      ",hostname=".$db->escape('mythweb-'.$_SERVER['SERVER_NAME']).
+       ",playlist_name='".MYTH_WEB_PLAYLIST_NAME."'";
+   }
+   else
+@@ -1252,7 +1252,7 @@ function savePlaylist($pl_name, $newpl)
+   else
+   {
+     $query = 'UPDATE music_playlists SET'.
+-      ' playlist_name=\''.$db->escape($pl_name).'\''.
++      ' playlist_name='.$db->escape($pl_name).
+       ",hostname='' ".
+       'WHERE playlist_id='.$db->escape($pl['playlist_id']);
+ 
+@@ -1360,7 +1360,7 @@ function playlist_move($item1,$item2)
+   $songs[$idx2] = $tmp;
+ 
+   $query = 'UPDATE music_playlists SET'.
+-    ' playlist_songs=\''.$db->escape(implode(',', $songs)).'\' '.
++    ' playlist_songs='.$db->escape(implode(',', $songs)).' '.
+     'WHERE playlist_id='.$db->escape($pl['playlist_id']).';';
+   $db->query($query);
+ }
+diff --git a/modules/tv/classes/Channel.php b/modules/tv/classes/Channel.php
+index 8fac90a..a435028 100644
+--- a/modules/tv/classes/Channel.php
++++ b/modules/tv/classes/Channel.php
+@@ -50,7 +50,7 @@ class Channel extends MythBase {
+             $channel_list = Cache::get('[channelList]');
+         if (is_null($channel_list)) {
+             global $db;
+-            $sql = 'SELECT channel.chanid FROM channel';
++            $sql = 'SELECT MIN(channel.chanid) AS chanid FROM channel';
+             if ($_SESSION['guide_favonly']) {
+                 $sql .= ', channelgroup, channelgroupnames WHERE channel.chanid = channelgroup.chanid AND channelgroup.grpid = channelgroupnames.grpid AND channelgroupnames.name = \'Favorites\'';
+                 if ($filtered)
+@@ -62,7 +62,7 @@ class Channel extends MythBase {
+         // Sort
+             $sql .= ' ORDER BY '
+                     .($_SESSION["sortby_channum"] ? '' : 'channel.callsign, ')
+-                    .'(channel.channum + 0), channel.channum, channel.chanid';  // sort by channum as both int and string to grab subchannels
++                    .'(channel.channum + 0), channel.channum';  // sort by channum as both int and string to grab subchannels
+         // Query
+             $sh = $db->query($sql);
+             $channel_list = array();
+@@ -77,7 +77,7 @@ class Channel extends MythBase {
+         $callsign_list = Cache::get('[callsignList]');
+         if (is_null($callsign_list)) {
+             global $db;
+-            $sql = 'SELECT channel.chanid, channel.channum, channel.callsign FROM channel';
++            $sql = 'SELECT MIN(channel.chanid) AS chanid, channel.channum, channel.callsign FROM channel';
+             if ($_SESSION['guide_favonly'])
+                 $sql .= ', channelgroup, channelgroupnames WHERE channel.chanid = channelgroup.chanid AND channelgroup.grpid = channelgroupnames.grpid AND channelgroupnames.name = \'Favorites\' AND';
+             else
+@@ -87,7 +87,7 @@ class Channel extends MythBase {
+         // Sort
+             $sql .= ' ORDER BY '
+                     .($_SESSION["sortby_channum"] ? '' : 'channel.callsign, ')
+-                    .'(channel.channum + 0), channel.channum, channel.chanid';  // sort by channum as both int and string to grab subchannels
++                    .'(channel.channum + 0), channel.channum';  // sort by channum as both int and string to grab subchannels
+         // Query
+             $sh = $db->query($sql);
+             $callsign_list = array();
+diff --git a/modules/tv/classes/Program.php b/modules/tv/classes/Program.php
+index 57ce447..1de5c77 100644
+--- a/modules/tv/classes/Program.php
++++ b/modules/tv/classes/Program.php
+@@ -629,21 +629,25 @@ class Program extends MythBase {
+  **/
+     public function rec_never_record() {
+         global $db;
+-        $sh = $db->query('REPLACE INTO oldrecorded (chanid,starttime,endtime,title,subtitle,description,category,seriesid,programid,recordid,station,rectype,recstatus,duplicate) VALUES ('
++        $sh = $db->query('REPLACE INTO oldrecorded (chanid,starttime,endtime,title,subtitle,description,season,episode,category,seriesid,programid,inetref,recordid,station,rectype,recstatus,duplicate,generic) VALUES ('
+                                 .escape($this->chanid)                    .','
+                                 .'NOW()'                                  .','
+                                 .'NOW()'                                  .','
+                                 .escape($this->title)                     .','
+                                 .escape($this->subtitle)                  .','
+                                 .escape($this->description)               .','
++                                .escape(isset($this->season) ? $this->season : 0) .','
++                                .escape(isset($this->episode) ? $this->episode : 0) .','
+                                 .escape($this->category)                  .','
+                                 .escape($this->seriesid)                  .','
+                                 .escape($this->programid)                 .','
++                                .escape(isset($this->inetref) ? $this->inetref : '') .','
+                                 .escape(isset($this->recordid) ? $this->recordid : 0)                  .','
+                                 .escape($this->channel->callsign)         .','
+                                 .escape(isset($this->rectype) ? $this->rectype : 0)                   .','
+                                 .'11'                                     .','
+-                                .'1'                                      .')')
++                                .'1'                                      .','
++                                .'0'                                      .')')
+             or trigger_error('SQL Error: '.$db->error, FATAL);
+         $sh->finish();
+     // Notify the backend of the changes
+@@ -697,7 +701,7 @@ class Program extends MythBase {
+                        SET oldrecorded.reactivate = 1
+                      WHERE oldrecorded.starttime  = ?
+                        AND oldrecorded.chanid     = ?',
+-                    $this->starttime,
++                    unix2mythtime($this->starttime),
+                     $this->chanid
+                   );
+         $this->rec_override(rectype_override);
+@@ -770,40 +774,22 @@ class Program extends MythBase {
+ 
+     public function getAspect() {
+         global $db;
+-        $sh = $db->query('SELECT recordedmarkup.type,
+-                                 recordedmarkup.data
+-                            FROM recordedmarkup
+-                           WHERE recordedmarkup.chanid    = ?
+-                             AND recordedmarkup.starttime = FROM_UNIXTIME(?)
+-                             AND recordedmarkup.type      IN (10, 11, 12, 13, 14)
+-                        GROUP BY recordedmarkup.type
+-                        ORDER BY SUM((SELECT IFNULL(rm.mark, recordedmarkup.mark)
+-                                        FROM recordedmarkup AS rm
+-                                       WHERE rm.chanid = recordedmarkup.chanid
+-                                         AND rm.starttime = recordedmarkup.starttime
+-                                         AND rm.type IN (10, 11, 12, 13, 14)
+-                                         AND rm.mark > recordedmarkup.mark
+-                                ORDER BY rm.mark ASC LIMIT 1)- recordedmarkup.mark) DESC
+-                           LIMIT 1',
+-                           $this->chanid,
+-                           $this->recstartts
++        $sh = $db->query('SELECT aspect
++                            FROM recordedfile
++                           WHERE recordedid = ?',
++                           $this->recordedid
+                            );
+         $row = $sh->fetch_assoc();
+         $sh->finish();
+ 
+-        switch($row['type']) {
+-            case 10:
+-                return 1;
+-            case 11:
+-                return 4/3;
+-            case 12:
+-                return 16/9;
+-            case 13:
+-                return 2.21/1;
+-            case 14:
+-                return $row['data']/1000000.0;
+-            default:
+-                return 4/3;
++        if (($row['aspect'] > 1.777777) && ($row['aspect'] < 1.777779)) {
++            // avoid low precision 16:9 to avoid 320x179 thumbnails
++            return 16/9;
++        } elseif ($row['aspect'] > 1) {
++            return $row['aspect'];
++        } else {
++            // default 4:3
++            return 4/3;
+         }
+     }
+ }
+diff --git a/modules/tv/classes/Schedule.php b/modules/tv/classes/Schedule.php
+index 8cbfac4..c63f948 100644
+--- a/modules/tv/classes/Schedule.php
++++ b/modules/tv/classes/Schedule.php
+@@ -374,9 +374,9 @@ class Schedule extends MythBase {
+                          _or($this->playgroup,     'Default'       ),
+                          _or($this->storagegroup,  'Default'       ),
+                          _or($this->prefinput,     0,          true),
+-                         _or($this->next_record,   '00:00:00'      ),
+-                         _or($this->last_record,   '00:00:00'      ),
+-                         _or($this->last_delete,   '00:00:00'      ),
++                         _or($this->next_record,   NULL            ),
++                         _or($this->last_record,   NULL            ),
++                         _or($this->last_delete,   NULL            ),
+                          _or($this->inetref,       ''              ),
+                          _or($this->season,        0              ),
+                          _or($this->episode,       0              ),
+diff --git a/modules/tv/includes/programs.php b/modules/tv/includes/programs.php
+index dff6eb4..e64a27c 100644
+--- a/modules/tv/includes/programs.php
++++ b/modules/tv/includes/programs.php
+@@ -97,7 +97,7 @@
+             trigger_error("load_all_program_data() attempted with out any channels", FATAL);
+         $these_channels = implode(',', $these_channels);
+     // Build the sql query, and execute it
+-        $query = 'SELECT program.*,
++        $query = 'SELECT DISTINCT program.*,
+                          UNIX_TIMESTAMP(program.starttime) AS starttime_unix,
+                          UNIX_TIMESTAMP(program.endtime) AS endtime_unix,
+                          IFNULL(programrating.system, "") AS rater,
+@@ -106,9 +106,9 @@
+                          channel.channum
+                   FROM program USE INDEX (id_start_end)
+                        LEFT JOIN programrating USING (chanid, starttime)
+-                       LEFT JOIN channel ON program.chanid = channel.chanid
+-                       LEFT JOIN credits ON (program.chanid = credits.chanid AND program.starttime = credits.starttime)
+-                       LEFT JOIN people ON (credits.person = people.person)
++                       LEFT JOIN channel USING (chanid)
++                       LEFT JOIN credits USING (chanid, starttime)
++                       LEFT JOIN people USING (person)
+                  WHERE';
+     // Only loading a single channel worth of information
+         if ($chanid > 0)
+@@ -128,10 +128,11 @@
+         if ($extra_query)
+             $query .= ' AND '.$extra_query;
+     // Group and sort
+-        if (!$distinctTitle)
+-            $query .= "\nGROUP BY channel.callsign, program.chanid, program.starttime";
+-        else
+-            $query .= "\nGROUP BY program.title";
++    // FIXME reenable with e.g. ANY_VALUE or rewrite to use the Service API
++    //  if (!$distinctTitle)
++    //      $query .= "\nGROUP BY channel.callsign, program.chanid, program.starttime";
++    //  else
++    //      $query .= "\nGROUP BY program.title";
+         $query .= " ORDER BY program.starttime";
+     // Limit
+         if ($single_program)
+diff --git a/modules/tv/set_channels.php b/modules/tv/set_channels.php
+index 7bdd4fb..9534b21 100644
+--- a/modules/tv/set_channels.php
++++ b/modules/tv/set_channels.php
+@@ -33,7 +33,7 @@
+                                              visible       = ?';
+                 $query_params[] = $data['xmltvid'];
+                 $query_params[] = $data['freqid'];
+-                $query_params[] = $data['finetune'];
++                $query_params[] = empty($data['finetune'])      ? 0 : $data['finetune'];
+                 $query_params[] = $data['videofilters'];
+                 $query_params[] = $data['brightness'];
+                 $query_params[] = $data['contrast'];
+diff --git a/mythweb.pl b/mythweb.pl
+index 252ecf4..4f36a33 100755
+--- a/mythweb.pl
++++ b/mythweb.pl
+@@ -10,6 +10,9 @@
+     use Cwd 'abs_path';
+     use File::Basename;
+ 
++# Add mythweb dir to @INC
++    use lib dirname(abs_path($ENV{'SCRIPT_FILENAME'} or $0));
++
+ # pwd is / when running under mod_rewrite, so we should chdir to the script
+ # directory for consistency
+     chdir dirname(abs_path($ENV{'SCRIPT_FILENAME'} or $0));
