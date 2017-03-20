@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        0.28
-Release:        6%{?dist}
+Release:        7%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -104,6 +104,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Mon Mar 20 2017 RPM Fusion Release Engineering <kwizart@rpmfusion.org> - 0.28-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Thu Dec  1 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-6
 - Remove obsolete scripts. Since data was moved to /var/lib data migration is
   no longer necessary.
