@@ -1,11 +1,11 @@
-%global vers_string v0.28-13-g3fa642f
+%global vers_string v0.28.1-1-gd94cf0b
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        0.28
-Release:        6%{?dist}
+Version:        0.28.1
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -14,7 +14,7 @@ Source1:        mythweb.conf
 Source2:        ChangeLog
 
 # Patch generated from mythweb fixes branch. From mythweb git directory:
-# git diff -p --stat %{version} > mythweb-fixes.patch
+# git diff -p --stat <git_tag> > mythweb-fixes.patch
 Patch0:         mythweb-0.28-fixes.patch
 
 # This is needed for perl dependency auto-detection
