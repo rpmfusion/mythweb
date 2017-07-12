@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        0.28.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -104,6 +104,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Wed Jul 12 2017 Richard Shaw <hobbes1069@gmail.com> - 0.28.1-2
+- Rebuild for perl 5.26.0.
+
 * Mon Apr 17 2017 Richard Shaw <hobbes1069@gmail.com> - 0.28.1-1
 - Update to latest upstream release, 0.28.1.
 
