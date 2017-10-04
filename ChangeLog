@@ -1,7 +1,0 @@
-commit d94cf0bb5e1ffb7feaab27aae68d8214371ae266
-Author: Stuart Auchterlonie <stuarta@mythtv.org>
-Date:   Tue Mar 28 09:27:12 2017 +0100
-
-    Fixes #12981 [php7.1] Use of this is no longer allowed
-    
-    (cherry picked from commit 52ff70ecfdad06b0b66f8a5ec67cefc1b55a1861)
