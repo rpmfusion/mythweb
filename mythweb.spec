@@ -1,11 +1,11 @@
-%global vers_string v0.28-13-g3fa642f
+%global vers_string v29.0
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        0.28
-Release:        6%{?dist}
+Version:        29.0
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -14,16 +14,11 @@ Source1:        mythweb.conf
 Source2:        ChangeLog
 
 # Patch generated from mythweb fixes branch. From mythweb git directory:
-# git diff -p --stat %{version} > mythweb-fixes.patch
-Patch0:         mythweb-0.28-fixes.patch
+# git diff -p --stat <git_tag> > mythweb-fixes.patch
+Patch0:         mythweb-fixes.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
-
-# The following are required only in mythweb is running on the same computer
-# as the backend. They will be pulled in by the mythtv meta package anyway.
-#Requires:       mythtv-backend >= %{version}-%{release}
-#Requires:       mysql-server >= 5, mysql >= 5
 
 Requires:       httpd
 Requires:       php >= 5.1
@@ -40,8 +35,7 @@ The web interface to MythTV.
 
 
 %prep
-%setup -q -n %{name}-%{version}
-%patch0 -p1
+%autosetup -p1
 
 # Non-executable scripts don't need shebangs
 sed -i modules/coverart/handler.pl -e '/\/usr\/bin\/perl/d'
@@ -72,29 +66,6 @@ install -pm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
 rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
-#%pretrans
-## If this is an upgrade
-#if [ $1 -eq 0 ] ; then
-#    # If data exists and is a directory then we need move it out of the way.
-#    if [ -d "%{_datadir}/%{name}/data" ] ; then
-#        mv %{_datadir}/%{name}/data %{_datadir}/%{name}/_tmp_data
-#    fi
-#fi
-
-#%posttrans
-## If this is an upgrade
-#if [ $1 -eq 0 ] ; then
-#    # If there is data to migrate, let's do it
-#    if [ -e "%{_datadir}/%{name}/_tmp_data" ] ; then
-#        cp -p %{_datadir}/%{name}/_tmp_data/cache/* \
-#              %{_sharedstatedir}/%{name}/data/cache/ &> /dev/null || :
-#        cp -p %{_datadir}/%{name}/_tmp_data/tv_icons/* \
-#              %{_sharedstatedir}/%{name}/data/tv_icons/ &> /dev/null || :
-#        rm -rf %{_datadir}/%{name}/_tmp_data
-#    fi
-#fi
-
-
 %files
 %doc README ChangeLog
 %license LICENSE
@@ -104,6 +75,21 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Sun Sep 17 2017 Richard Shaw <hobbes1069@gmail.com> - 29.0-1
+- Update to latest upstream release, 29.0.
+
+* Thu Aug 31 2017 RPM Fusion Release Engineering <kwizart@rpmfusion.org> - 0.28.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Wed Jul 12 2017 Richard Shaw <hobbes1069@gmail.com> - 0.28.1-2
+- Rebuild for perl 5.26.0.
+
+* Mon Apr 17 2017 Richard Shaw <hobbes1069@gmail.com> - 0.28.1-1
+- Update to latest upstream release, 0.28.1.
+
+* Mon Mar 20 2017 RPM Fusion Release Engineering <kwizart@rpmfusion.org> - 0.28-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Thu Dec  1 2016 Richard Shaw <hobbes1069@gmail.com> - 0.28-6
 - Remove obsolete scripts. Since data was moved to /var/lib data migration is
   no longer necessary.
