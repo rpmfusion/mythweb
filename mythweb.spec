@@ -1,15 +1,15 @@
-%global vers_string v29.0
+%global vers_string v29.1
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        29.0
+Version:        29.1
 Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
-Source0:        https://github.com/MythTV/%{name}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source0:        https://github.com/MythTV/%{name}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
 
@@ -75,6 +75,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Thu Feb 15 2018 Sérgio Basto <sergio@serjux.com> - 29.1-1
+- Update to 29.1
+
 * Sun Sep 17 2017 Richard Shaw <hobbes1069@gmail.com> - 29.0-1
 - Update to latest upstream release, 29.0.
 
