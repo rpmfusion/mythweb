@@ -1,0 +1,14 @@
+commit 6a6eb1a4a9e48a3f7fcf3006cb4404051e572911
+Author: Bill Meek <billmeek@mythtv.org>
+Date:   Tue May 22 08:50:21 2018 -0500
+
+    Removes error messages from "Recorded Programs" page
+    
+    In Ubuntu 18.04, the following prints for lines
+    188 (and 189 for disk_used) on the above screen:
+    
+    Warning at /var/www/mythweb/modules/tv/recorded.php, line 188:
+    
+    !!NoTrans: Use of undefined constant disk_size - assumed 'disk_size' (this will throw an Error in a future version of PHP)!!
+    
+    (cherry picked from commit 664dc1707ccf7be8b0b1d9eadf6366de8bbaa9c9)

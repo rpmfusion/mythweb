@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        29.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -75,6 +75,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Mon Sep 10 2018 Richard Shaw <hobbes1069@gmail.com> - 29.1-3
+- Addresses PHP 7.2 issue, fixes #4937.
+
 * Thu Mar 01 2018 RPM Fusion Release Engineering <leigh123linux@googlemail.com> - 29.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
