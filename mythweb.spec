@@ -16,6 +16,7 @@ Source2:        ChangeLog
 # Patch generated from mythweb fixes branch. From mythweb git directory:
 # git diff -p --stat <git_tag> > mythweb-fixes.patch
 Patch0:         mythweb-fixes.patch
+Patch1:         mythweb-php_fix.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
@@ -75,7 +76,7 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
-* Mon Sep 10 2018 Richard Shaw <hobbes1069@gmail.com> - 29.1-4
+* Sun Sep 23 2018 Richard Shaw <hobbes1069@gmail.com> - 29.1-4
 - Addresses PHP 7.2 issue, fixes #4937.
 
 * Fri Jul 27 2018 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 29.1-3

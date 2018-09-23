@@ -1,0 +1,25 @@
+ modules/tv/tmpl/default/detail.php | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules/tv/tmpl/default/detail.php b/modules/tv/tmpl/default/detail.php
+index f6d1faa9..4975f415 100644
+--- a/modules/tv/tmpl/default/detail.php
++++ b/modules/tv/tmpl/default/detail.php
+@@ -842,7 +842,7 @@
+             }
+             echo '            </ul>';
+         }
+-        if (count($program->jobs['queue'])) {
++        if (is_array($program->jobs['queue']) && count($program->jobs['queue'])) {
+             echo t('Queued jobs'), ':',
+                  '            <ul class="-queued">';
+             foreach ($program->jobs['queue'] as $job) {
+@@ -856,7 +856,7 @@
+             }
+             echo '            </ul>';
+         }
+-        if (count($program->jobs['done'])) {
++        if (is_array($program->jobs['done']) && count($program->jobs['done'])) {
+             echo t('Recently completed jobs'), ':',
+                  '            <ul class="-done">';
+             foreach ($program->jobs['done'] as $job) {
