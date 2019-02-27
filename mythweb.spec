@@ -4,8 +4,8 @@ Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        29.1
-Release:        4%{?dist}
+Version:        30.0
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -13,10 +13,7 @@ Source0:        https://github.com/MythTV/%{name}/archive/v%{version}/%{name}-%{
 Source1:        mythweb.conf
 Source2:        ChangeLog
 
-# Patch generated from mythweb fixes branch. From mythweb git directory:
-# git diff -p --stat <git_tag> > mythweb-fixes.patch
-Patch0:         mythweb-fixes.patch
-Patch1:         mythweb-php_fix.patch
+Patch0:         mythweb-php_fix.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
@@ -76,6 +73,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Wed Feb 27 2019 Richard Shaw <hobbes1069@gmail.com> - 30.0-1
+- Update to 30.0.
+
 * Sun Sep 23 2018 Richard Shaw <hobbes1069@gmail.com> - 29.1-4
 - Addresses PHP 7.2 issue, fixes #4937.
 
