@@ -4,16 +4,14 @@ Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        30.0
-Release:        4%{?dist}
+Version:        31.0
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
 Source0:        https://github.com/MythTV/%{name}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
-
-Patch0:         mythweb-php_fix.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
@@ -73,6 +71,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Mon Mar 30 2020 Richard Shaw <hobbes1069@gmail.com> - 31.0-1
+- Update to 31.0.
+
 * Wed Feb 05 2020 RPM Fusion Release Engineering <leigh123linux@gmail.com> - 30.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
