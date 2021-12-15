@@ -1,17 +1,19 @@
-%global vers_string v29.1
+%global vers_string v31.0
 
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        31.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
 Source0:        https://github.com/MythTV/%{name}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
+
+Patch0:         mythweb-php8.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
@@ -71,6 +73,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Wed Dec 15 2021 Richard Shaw <hobbes1069@gmail.com> - 31.0-2
+- Add patch for PHP8 from upstream.
+
 * Mon Mar 30 2020 Richard Shaw <hobbes1069@gmail.com> - 31.0-1
 - Update to 31.0.
 
