@@ -1,0 +1,437 @@
+diff --git a/classes/Database/Query/mysql.php b/classes/Database/Query/mysql.php
+index b5e2cf1e..132c3ae4 100644
+--- a/classes/Database/Query/mysql.php
++++ b/classes/Database/Query/mysql.php
+@@ -133,7 +133,7 @@ class Database_Query_mysql extends Database_Query {
+  * @link http://www.php.net/manual/en/function.mysql-fetch-array.php
+  * @return assoc
+  **/
+-    function fetch_array($result_type=MYSQL_BOTH) {
++    function fetch_array($result_type=MYSQLI_BOTH) {
+         return mysqli_fetch_array($this->sh, $result_type);
+     }
+ 
+diff --git a/classes/vcalendar.php b/classes/vcalendar.php
+index a1b2a7cf..2dbc0ccd 100644
+--- a/classes/vcalendar.php
++++ b/classes/vcalendar.php
+@@ -740,9 +740,9 @@ class vcalendar {
+       return FALSE;
+     if( isset( $input['tz'] ) && ( '' < trim ( $input['tz'] ))) {
+       $input['tz'] = (string) trim( $input['tz'] );
+-      if( ctype_digit( $input['tz']{1} )) { // only numeric tz=offset
++      if( ctype_digit( $input['tz'][1])) { // only numeric tz=offset
+         $offset = 0;
+-        if( ctype_digit( $input['tz']{0} ))
++        if( ctype_digit( $input['tz'][0]))
+           $input['tz'] = '+'.$input['tz'];
+         $offset = $toolbox->_tz2offset( $input['tz'] );
+         if( 0 != $offset) {
+@@ -1436,10 +1436,10 @@ class vcalendar {
+             /* get propname */
+         $cix = $propname = null;
+         for( $cix=0; $cix < strlen( $line ); $cix++ ) {
+-          if( in_array( $line{$cix}, array( ':', ';' )))
++          if( in_array( $line[$cix], array( ':', ';' )))
+             break;
+           else
+-            $propname .= $line{$cix};
++            $propname .= $line[$cix];
+         }
+             /* ignore version/prodid properties */
+         if( in_array( strtoupper( $propname ), array( 'VERSION', 'PRODID' )))
+@@ -1450,7 +1450,7 @@ class vcalendar {
+         $attrix = -1;
+         $strlen = strlen( $line );
+         for( $cix=0; $cix < $strlen; $cix++ ) {
+-          if((       ':'   == $line{$cix} )             &&
++          if((       ':'   == $line[$cix])             &&
+                    ( '://' != substr( $line, $cix, 3 )) &&
+              ( 'mailto:'   != strtolower( substr( $line, $cix - 6, 7 )))) {
+             $attrEnd = TRUE;
+@@ -1468,10 +1468,10 @@ class vcalendar {
+               break;
+             }
+           }
+-          if( ';' == $line{$cix} )
++          if( ';' == $line[$cix])
+             $attr[++$attrix] = null;
+           else
+-            $attr[$attrix] .= $line{$cix};
++            $attr[$attrix] .= $line[$cix];
+         }
+ 
+             /* make attributes in array format */
+@@ -2020,7 +2020,7 @@ class calendarComponent {
+               foreach( $optparamvalue as $part ) {
+                 $part = str_replace( 'MAILTO:', '', $part );
+                 $part = str_replace( 'mailto:', '', $part );
+-                if(( '"' == $part{0} ) && ( '"' == $part{strlen($part)-1} ))
++                if(( '"' == $part[0]) && ( '"' == $part[strlen($part)-1]))
+                   $part = substr( $part, 1, ( strlen($part)-2 ));
+                 $optarrays[$optparamlabel][] = $part;
+               }
+@@ -2028,7 +2028,7 @@ class calendarComponent {
+             else {
+               $part = str_replace( 'MAILTO:', '', $optparamvalue );
+               $part = str_replace( 'mailto:', '', $part );
+-              if(( '"' == $part{0} ) && ( '"' == $part{strlen($part)-1} ))
++              if(( '"' == $part[0]) && ( '"' == $part[strlen($part)-1]))
+                 $part = substr( $part, 1, ( strlen($part)-2 ));
+               $optarrays[$optparamlabel][] = $part;
+             }
+@@ -2669,14 +2669,14 @@ class calendarComponent {
+       }
+       if( !empty( $exdate['value'][0]['tz'] )   &&
+            ( $exdate['value'][0]['tz'] != 'Z' ) &&
+-        ( !( in_array($exdate['value'][0]['tz']{0}, array( '+', '-' )) &&
++        ( !( in_array($exdate['value'][0]['tz'][0], array( '+', '-' )) &&
+              ctype_digit( substr( $exdate['value'][0]['tz'], 1 ))) &&
+           !ctype_digit( $exdate['value'][0]['tz'] ) ) ) {
+         $exdate['params']['TZID'] = $exdate['value'][0]['tz'];
+         foreach( $exdate['value'] as $exix => $exdatea ) {
+           if( !empty( $exdate['value'][0]['tz'] )   &&
+                ( $exdate['value'][0]['tz'] != 'Z' ) &&
+-            ( !( in_array($exdate['value'][0]['tz']{0}, array( '+', '-' )) &&
++            ( !( in_array($exdate['value'][0]['tz'][0], array( '+', '-' )) &&
+                  ctype_digit( substr( $exdate['value'][0]['tz'], 1 ))) &&
+               !ctype_digit( $exdate['value'][0]['tz'] ) ) )
+             unset( $exdate['value'][$exix]['tz'] );
+@@ -2839,8 +2839,8 @@ class calendarComponent {
+           }
+         }
+         elseif(( 3 <= strlen( trim( $fbMember ))) &&    // string format duration
+-               ( in_array( $fbMember{0}, array( 'P', '+', '-' )))) {
+-          if( 'P' != $fbMember{0} )
++               ( in_array( $fbMember[0], array( 'P', '+', '-' )))) {
++          if( 'P' != $fbMember[0])
+             $fbmember = substr( $fbMember, 1 );
+           $freebusyPairMember = $this->_duration_string( $fbMember );
+         }
+@@ -3260,8 +3260,8 @@ class calendarComponent {
+               }
+             }
+             elseif(( 3 <= strlen( trim( $rPeriod ))) &&    // string format duration
+-                   ( in_array( $rPeriod{0}, array( 'P', '+', '-' )))) {
+-              if( 'P' != $rPeriod{0} )
++                   ( in_array( $rPeriod[0], array( 'P', '+', '-' )))) {
++              if( 'P' != $rPeriod[0])
+                 $rPeriod = substr( $rPeriod, 1 );
+               $inputa[] = $this->_duration_string( $rPeriod );
+             }
+@@ -3343,7 +3343,7 @@ class calendarComponent {
+       if( empty( $input['value'][0]['tz'] ) ||
+          ( $input['value'][0]['tz'] == 'Z' ))
+         $dummy = TRUE;
+-      elseif( in_array($input['value'][0]['tz']{0}, array( '+', '-' )) &&
++      elseif( in_array($input['value'][0]['tz'][0], array( '+', '-' )) &&
+                ctype_digit( substr( $input['value'][0]['tz'], 1 )))
+         $dummy = TRUE;
+       elseif( ctype_digit( $input['value'][0]['tz'] ))
+@@ -3353,7 +3353,7 @@ class calendarComponent {
+         foreach( $input['value'] as $eix => $inputa ) {
+           if( !empty( $input['value'][0]['tz'] )   &&
+                ( $input['value'][0]['tz'] != 'Z' ) &&
+-            ( !( in_array( $input['value'][0]['tz']{0}, array( '+', '-' )) &&
++            ( !( in_array( $input['value'][0]['tz'][0], array( '+', '-' )) &&
+                  ctype_digit( substr( $input['value'][0]['tz'], 1 ))) &&
+               !ctype_digit( $input['value'][0]['tz'] ) ) )
+             unset( $input['value'][$eix]['tz'] );
+@@ -3845,14 +3845,14 @@ class calendarComponent {
+       unset( $month );
+       $this->_existRem( $params, 'VALUE', 'DATE-TIME' );   // ??
+       $this->_existRem( $params, 'VALUE', 'DURATION' );
+-      if( in_array( $year{0}, array( 'P', '+', '-' ))) { // duration
+-        if( '-' == $year{0} )
++      if( in_array( $year[0], array( 'P', '+', '-' ))) { // duration
++        if( '-' == $year[0])
+           $after = FALSE;
+-        elseif( '+' == $year{0} )
++        elseif( '+' == $year[0])
+           $after = TRUE;
+-        elseif( 'P' == $year{0} )
++        elseif( 'P' == $year[0])
+           $after = TRUE;
+-        if( 'P' != $year{0} )
++        if( 'P' != $year[0])
+           $year  = substr( $year, 1 );
+         $date    = $this->_duration_string( $year);
+       }
+@@ -4111,7 +4111,7 @@ class calendarComponent {
+     $length = 6;
+     $str    = null;
+     for( $p = 0; $p < $length; $p++ )
+-      $unique .= $base{mt_rand( $start, $end )};
++      $unique .= $base[mt_rand( $start, $end )];
+     $this->uid['value']  = $date.'-'.$unique.'@'.$this->getConfig( 'unique_id' );
+     $this->uid['params'] = null;
+   }
+@@ -4462,7 +4462,7 @@ class calendarComponent {
+  * @since 2.2.2 - 2007-07-29
+  * @param array  $datetime  datetime/(date)
+  * @param string $tz        timezone
+- * @return timestamp
++ * @return int
+  */
+   function _date2timestamp( $datetime, $tz=null ) {
+     $output = null;
+@@ -4749,7 +4749,7 @@ class calendarComponent {
+    $output = array();
+    $val    = null;
+    for( $ix=0; $ix < strlen( $duration ); $ix++ ) {
+-     switch( strtoupper( $duration{$ix} )) {
++     switch( strtoupper( $duration[$ix])) {
+       case 'W':
+         $output['week'] = $val;
+         $val            = null;
+@@ -4771,10 +4771,10 @@ class calendarComponent {
+         $val            = null;
+         break;
+       default:
+-        if( !ctype_digit( $duration{$ix} ))
++        if( !ctype_digit( $duration[$ix]))
+           return false; // unknown duration controll character  !?!?
+         else
+-          $val .= $duration{$ix};
++          $val .= $duration[$ix];
+      }
+    }
+    return $this->_duration_array( $output );
+@@ -5475,7 +5475,7 @@ class calendarComponent {
+       $input['value']['tz'] = (string) $input['value']['tz'];
+     if( !empty( $input['value']['tz'] )   &&
+          ( $input['value']['tz'] != 'Z' ) &&
+-      ( !( in_array($input['value']['tz']{0}, array( '+', '-' )) &&
++      ( !( in_array($input['value']['tz'][0], array( '+', '-' )) &&
+            ctype_digit( substr( $input['value']['tz'], 1 ))) &&
+         !ctype_digit( $input['value']['tz'] ) ) ) {
+       $input['params']['TZID'] = $input['value']['tz'];
+@@ -6517,10 +6517,10 @@ class calendarComponent {
+             /* get propname, (problem with x-properties, otherwise in previous loop) */
+       $cix = $propname = null;
+       for( $cix=0; $cix < strlen( $line ); $cix++ ) {
+-        if( in_array( $line{$cix}, array( ':', ';' )))
++        if( in_array( $line[$cix], array( ':', ';' )))
+           break;
+         else {
+-          $propname .= $line{$cix};
++          $propname .= $line[$cix];
+         }
+       }
+       if(( 'x-' == substr( $propname, 0, 2 )) || ( 'X-' == substr( $propname, 0, 2 ))) {
+@@ -6534,7 +6534,7 @@ class calendarComponent {
+       $attrix = -1;
+       $strlen = strlen( $line );
+       for( $cix=0; $cix < $strlen; $cix++ ) {
+-        if((       ':'   == $line{$cix} )             &&
++        if((       ':'   == $line[$cix])             &&
+                  ( '://' != substr( $line, $cix, 3 )) &&
+            ( 'mailto:'   != strtolower( substr( $line, $cix - 6, 7 )))) {
+           $attrEnd = TRUE;
+@@ -6552,10 +6552,10 @@ class calendarComponent {
+             break;
+           }
+         }
+-        if( ';' == $line{$cix} )
++        if( ';' == $line[$cix])
+           $attr[++$attrix] = null;
+         else
+-          $attr[$attrix] .= $line{$cix};
++          $attr[$attrix] .= $line[$cix];
+       }
+             /* make attributes in array format */
+       $propattr = array();
+@@ -6977,7 +6977,7 @@ class calendarComponent {
+           $pos = strpos( $string, "\\", $pos );
+           if( FALSE === $pos )
+             break;
+-          if( !in_array( $string{($pos + 1)}, array( 'n', 'N', 'r', ',', ';' ))) {
++          if( !in_array( $string[($pos + 1)], array( 'n', 'N', 'r', ',', ';' ))) {
+             $string = substr( $string, 0, $pos )."\\".substr( $string, ( $pos + 1 ));
+             $pos += 1;
+           }
+diff --git a/includes/cleanup.php b/includes/cleanup.php
+index 43075183..1c24e345 100644
+--- a/includes/cleanup.php
++++ b/includes/cleanup.php
+@@ -47,7 +47,7 @@
+     fix_crlfxy($_GET);
+     fix_crlfxy($_POST);
+     fix_crlfxy($_REQUEST);
+-    if (get_magic_quotes_gpc()) {
++    if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
+ 
+     /**
+      * Recursively strip slashes from an array (eg. $_GET).
+diff --git a/includes/errors.php b/includes/errors.php
+index 9f160523..8e3cfe1b 100644
+--- a/includes/errors.php
++++ b/includes/errors.php
+@@ -39,7 +39,14 @@
+     define('E_ASSERT_ERROR', 4096);
+ 
+ // set the error reporting level for this script
+-    error_reporting(FATAL | ERROR | WARNING | E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
++
++    // PHP 8.0 has made some referencing issues more noisy
++    // MythWeb is littered with these issues so suppress them
++    // MythWeb is considered legacy so fixing them is unwarranted
++    if (version_compare(phpversion(), '8.0.0', '>='))
++        error_reporting(FATAL | ERROR | WARNING | E_ERROR | E_PARSE | E_COMPILE_ERROR);
++    else
++        error_reporting(FATAL | ERROR | WARNING | E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
+ 
+ // Reconfigure the error handler to use our own routine
+     set_error_handler('error_handler');
+@@ -47,7 +54,7 @@
+ // Active assert and make it quiet
+     assert_options(ASSERT_ACTIVE,     1);
+     assert_options(ASSERT_WARNING,    0);
+-    assert_options(ASSERT_QUIET_EVAL, 1);
++    if (defined('ASSERT_QUIET_EVAL')) assert_options(ASSERT_QUIET_EVAL, 1);
+ // Set up the callback
+     assert_options(ASSERT_CALLBACK, 'assert_handler');
+ 
+@@ -101,7 +108,7 @@
+  *  email message to the address stored in Error_Email, which is defined in
+  *  conf.php.
+  **/
+-    function error_handler($errno, $errstr, $errfile, $errline, $vars) {
++    function error_handler($errno, $errstr, $errfile, $errline, $vars = null) {
+         global $db;
+     // Leave early if we haven't requested reports from this kind of error
+         if (!($errno & error_reporting()))
+diff --git a/js/table_sort.js b/js/table_sort.js
+index 7846c7d1..2608818c 100644
+--- a/js/table_sort.js
++++ b/js/table_sort.js
+@@ -63,7 +63,7 @@ var SortableTables = {
+         if (this.currently_sorting_table != null)
+             return;
+         if (this.callback_presort)
+-            this.callback_presort(table_id, heder_index);
++            this.callback_presort(table_id, header_index);
+         if (this.tables[table_id].callback_presort)
+             this.tables[table_id].callback_presort(table_id, header_index);
+         this.tables[table_id].sort(header_index);
+diff --git a/modules/music/mp3act_functions.php b/modules/music/mp3act_functions.php
+index f0e9f37b..d4683442 100644
+--- a/modules/music/mp3act_functions.php
++++ b/modules/music/mp3act_functions.php
+@@ -461,7 +461,7 @@ function musicLookup($type, $itemid)
+       $sh->finish();
+       $artist = $row['artist_name'];
+ 
+-      $letter = (!preg_match('/^[0-9]/', $artist) ? strtoupper($artist{0}) : '#');
++      $letter = (!preg_match('/^[0-9]/', $artist) ? strtoupper($artist[0]) : '#');
+ 
+       $output = '<div class="head">
+         <div class="right">
+@@ -1391,7 +1391,7 @@ function internalPlaylistAddPlaylistCheck($curPlId, $addPlId, $depth = 0)
+     return false;
+ 
+   $songs = explode(',', $row['playlist_songs']);
+-  $playlists = array_filter($songs, create_function('$n','return ($n < 0);'));
++  $playlists = array_filter($songs, function ($n) { return ($n < 0); });
+ 
+   foreach ($playlists as $playlist_id)
+   {
+diff --git a/modules/mythweb/tmpl/lite/set_flvplayer.php b/modules/mythweb/tmpl/lite/set_flvplayer.php
+index 50b4d6e0..d45009d9 100644
+--- a/modules/mythweb/tmpl/lite/set_flvplayer.php
++++ b/modules/mythweb/tmpl/lite/set_flvplayer.php
+@@ -23,7 +23,7 @@
+          title="Enable Flash Video player for recordings."
+          <?php if (setting('WebFLV_on')) echo ' CHECKED' ?>></td>
+ </tr><tr>
+-<? /*  The SWF player can't handle different sizes yet, so don't turn these on
++<?php /*  The SWF player can't handle different sizes yet, so don't turn these on
+     <th><?php echo t('Width') ?>:</th>
+     <td><input type="text" name="width"
+          size="5" title="FLV Width"
+diff --git a/modules/tv/classes/Channel.php b/modules/tv/classes/Channel.php
+index a4350283..73611112 100644
+--- a/modules/tv/classes/Channel.php
++++ b/modules/tv/classes/Channel.php
+@@ -54,9 +54,9 @@ class Channel extends MythBase {
+             if ($_SESSION['guide_favonly']) {
+                 $sql .= ', channelgroup, channelgroupnames WHERE channel.chanid = channelgroup.chanid AND channelgroup.grpid = channelgroupnames.grpid AND channelgroupnames.name = \'Favorites\'';
+                 if ($filtered)
+-                    $sql .= ' AND channel.visible = 1';
++                    $sql .= ' AND channel.visible = 1 AND channel.deleted IS NULL';
+             } elseif ($filtered) {
+-                $sql .= ' WHERE channel.visible = 1';
++                $sql .= ' WHERE channel.visible = 1 AND channel.deleted IS NULL';
+             }
+             $sql .= ' GROUP BY channel.channum, channel.callsign';
+         // Sort
+@@ -82,7 +82,7 @@ class Channel extends MythBase {
+                 $sql .= ', channelgroup, channelgroupnames WHERE channel.chanid = channelgroup.chanid AND channelgroup.grpid = channelgroupnames.grpid AND channelgroupnames.name = \'Favorites\' AND';
+             else
+                 $sql .= ' WHERE';
+-            $sql .= ' channel.visible = 1';
++            $sql .= ' channel.visible = 1 AND channel.deleted IS NULL';
+             $sql .= ' GROUP BY channel.channum, channel.callsign';
+         // Sort
+             $sql .= ' ORDER BY '
+diff --git a/modules/tv/classes/Program.php b/modules/tv/classes/Program.php
+index 1de5c777..0c07d16b 100644
+--- a/modules/tv/classes/Program.php
++++ b/modules/tv/classes/Program.php
+@@ -712,7 +712,7 @@ class Program extends MythBase {
+  *
+  * @return array sorted list of category_type fields from the program table
+  **/
+-    public function category_types() {
++    public static function category_types() {
+         static $cache = array();
+         if (empty($cache)) {
+             global $db;
+@@ -728,7 +728,7 @@ class Program extends MythBase {
+  *
+  * @return array sorted list of category fields from the program table
+  **/
+-    public function categories() {
++    public static function categories() {
+         static $cache = array();
+         if (empty($cache)) {
+             global $db;
+diff --git a/modules/tv/classes/Schedule.php b/modules/tv/classes/Schedule.php
+index e71feadd..b433db70 100644
+--- a/modules/tv/classes/Schedule.php
++++ b/modules/tv/classes/Schedule.php
+@@ -283,7 +283,7 @@ class Schedule extends MythBase {
+     // Make sure that recordid is null if it's empty
+         if (empty($this->recordid)) {
+             $this->recordid = NULL;
+-            $this->findid   = Math.floor(date('U', $this->starttime)/60/60/24) + 719528;
++            $this->findid   = floor(date('U', $this->starttime)/60/60/24) + 719528;
+         // Only auto-default these properties if we're not dealing with a
+         // search-based recording rule, otherwise take the values we
+         // received from the custom schedule input form
+diff --git a/modules/tv/tmpl/wap/list.php b/modules/tv/tmpl/wap/list.php
+index 6dba3485..2368bf68 100644
+--- a/modules/tv/tmpl/wap/list.php
++++ b/modules/tv/tmpl/wap/list.php
+@@ -72,7 +72,7 @@
+         // Grab the reference
+             $channel =& Channel::find($key);
+         // Print the data
+-            print_channel(&$channel, $list_starttime, $list_endtime);
++            print_channel($channel, $list_starttime, $list_endtime);
+         // Cleanup is a good thing
+             unset($channel);
+         // Display the timeslot bar?
+diff --git a/modules/video/tmpl/default/video.php b/modules/video/tmpl/default/video.php
+index 740c26ae..2e2b3c0b 100644
+--- a/modules/video/tmpl/default/video.php
++++ b/modules/video/tmpl/default/video.php
+@@ -313,7 +313,7 @@
+ ?>
+     <div id="<?php echo $video->intid; ?>" class="video" onmouseover="video_popup(this.id)" onmouseout="hovering_video_id = null;">
+         <div id="<?php echo $video->intid; ?>_categoryid" class="hidden"><?php echo $video->category; ?></div>
+-        <div id="<?php echo $video->intid; ?>_genre" class="hidden"><?php if (count($video->genres)) foreach ($video->genres as $genre) echo ' '.$genre.' ';?></div>
++        <div id="<?php echo $video->intid; ?>_genre" class="hidden"><?php if ($video->genres != null && count($video->genres)) foreach ($video->genres as $genre) echo ' '.$genre.' ';?></div>
+         <div id="<?php echo $video->intid; ?>_browse" class="hidden"><?php echo $video->browse; ?></div>
+         <div id="<?php echo $video->intid; ?>-title" class="title">
+             <a href="<?php echo $video->url; ?>"><?php echo html_entities($video->title); ?></a><?php
