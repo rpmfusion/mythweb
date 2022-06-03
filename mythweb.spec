@@ -5,13 +5,15 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        32.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
 Source0:        https://github.com/MythTV/%{name}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
+
+Patch0:         mythweb-fixes.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
@@ -71,6 +73,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Fri Jun 03 2022 Richard Shaw <hobbes1069@gmail.com> - 32.0-2
+- Update to v32.0-40-gb05906a6.
+
 * Thu May 12 2022 Andrew Bauer <zonexpertconsulting@outlook.com> - 32.0-1
 - Update to 32.0
 

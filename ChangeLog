@@ -1,0 +1,315 @@
+commit b05906a68a9f1f6615653b22f184d39c2503f95c
+Author: Roland Ernst <rcrernst@gmail.com>
+Date:   Sun Mar 13 10:34:12 2022 +0100
+
+    Use SQL standard syntax in query
+    
+    instead of ORACLE syntax.
+    
+    This solves the error ERROR 1064 (42000) from MySQL:
+    You have an error in your SQL syntax; check for the right syntax to
+    use near 'UNIQUE(people.name) FROM credits.
+    
+    (cherry picked from commit f4bf29dec9c801b922e43aeeaaaf9b3bdc1dde9f)
+
+commit afc4a556131905cf2349fc6a7668ebd5e6f71c66
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Fri Mar 11 21:19:11 2022 +0000
+
+    Whitespace clean up.
+    
+    (cherry picked from commit 7949949ba481f6d4e6632215c10488a48969b2ba)
+
+commit 73e79b88fd365266065fea93d45c5b3689bc5bd2
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Fri Mar 11 21:14:17 2022 +0000
+
+    Better handling of tmpl constant.
+    
+    (cherry picked from commit c82ed0b19e3d0221303b235ba4dd7e5a8ab8f6cd)
+
+commit d642bdc12b5b7f646a1be49ebdde6d596d396184
+Merge: ed4c25df 154956e9
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:22:28 2022 +0000
+
+    Merge pull request #47 from mymatenige/includes-sorting
+    
+    Use REQUEST_URI rather than PATH_INFO due to decoding issues.
+
+commit ed4c25dfc2c9e53a87b7ba3ae66ca538d95f272e
+Merge: 736e3796 ca8d0daa
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:16:46 2022 +0000
+
+    Merge pull request #60 from mymatenige/schedules-table-sort
+    
+    Add support for table header sorting with recording schedules.
+
+commit 736e37964f24b9deb9c2922edf2de326213721a0
+Merge: 428dbfe3 dff18157
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:15:30 2022 +0000
+
+    Merge pull request #55 from mymatenige/modules-tv-tmpl-lite-schedules
+    
+    Do not display templates in the recording schedule list.
+
+commit 428dbfe37b90cf39dd40d632bff27f70534b6948
+Merge: 9d7c035c 7dd9eb9e
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:14:47 2022 +0000
+
+    Merge pull request #53 from mymatenige/modules-tv-tmpl-lite-detail
+    
+    Do not reference recgroup when calling recgroup_select.
+
+commit 9d7c035cf30a0a6ff79ba571273382fcf0d85353
+Merge: c4abbb0c e0cc9536
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:14:00 2022 +0000
+
+    Merge pull request #48 from mymatenige/modules-tv-schedules
+    
+    Add default sort order for tv/schedules.
+
+commit c4abbb0c5c5fd7df7c4efeb715d4541f2c775358
+Merge: c3cd36cc 286ecda3
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:12:20 2022 +0000
+
+    Merge pull request #42 from mkbloke/stream-raw
+    
+    Fix "isn't numeric" error in range request header parsing
+
+commit c3cd36cccc34fe424aa57d059bde7ed85b9d79db
+Merge: 8a02a563 793237a6
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:09:29 2022 +0000
+
+    Merge pull request #61 from citronalco/escape_newline
+    
+    Escape newlines in title and subtitle for Javascript
+
+commit 8a02a56390dfaf1250e5206cba45c69254cf6c0a
+Merge: 2bb3f25f c4793911
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 20:08:48 2022 +0000
+
+    Merge pull request #51 from mymatenige/includes-session
+    
+    Add missing return value.
+
+commit 2bb3f25f7fb3e56f07f73bca68b576c369017361
+Merge: 653c1b82 9292d74f
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:54:11 2022 +0000
+
+    Merge pull request #77 from kroseneg/fix-videoprop
+    
+    Fix videoproperties which were wrong after the schema change to 1362 …
+
+commit 653c1b824bada8d0449e82044d82bda59771f65f
+Merge: 1a544bcd a11f393e
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:53:30 2022 +0000
+
+    Merge pull request #76 from mkbloke/music
+    
+    Update music cookies to enable SameSite=Strict
+
+commit 1a544bcd6f00903131cd3f3ba8a31035920fdbc8
+Merge: de8d4e97 b9992265
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:52:59 2022 +0000
+
+    Merge pull request #75 from mkbloke/apple-touch-icons
+    
+    Correct paths for apple-touch-icons
+
+commit de8d4e973b40565e4277b71526c9b98020272ed6
+Merge: 0c176f0f 261c6029
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:52:44 2022 +0000
+
+    Merge pull request #73 from mkbloke/session
+    
+    Update mythweb_id cookie to enable SameSite=Strict
+
+commit 0c176f0fbd1b36086b90decf19f2e2d169ff8071
+Merge: c1aeb2b6 4fc9840d
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:52:19 2022 +0000
+
+    Merge pull request #66 from mymatenige/theme_timeslot_size
+    
+    Undefined constant 'theme_timeslot_size'.
+
+commit c1aeb2b66cca323d64f8cf9c8539eddab36e64ac
+Merge: 37e01a06 9e9aaf92
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:51:55 2022 +0000
+
+    Merge pull request #68 from mymatenige/js-table_sort-typo
+    
+    Fix simple typo.
+
+commit 37e01a06d8ff94d23ffa6e0e012680abaaffdada
+Merge: 45f60a6f 860836bd
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:51:36 2022 +0000
+
+    Merge pull request #70 from mymatenige/modules-mythweb-tmpl-default-set_flvplayer
+    
+    Fix typo in ffmpeg.app path.
+
+commit 45f60a6ff80980e11e8b925488bf41115f7a3715
+Merge: a44f7a81 d2aa1925
+Author: Stuart Auchterlonie <stuarta@mythtv.org>
+Date:   Wed Mar 9 19:51:08 2022 +0000
+
+    Merge pull request #71 from garybuhrmaster/people-order
+    
+    Display people in priority order when displaying program details
+
+commit 9292d74f30277bd1327285de2a787c7415724e6e
+Author: Korbinian Rosenegger <kroseneg@schmidham.net>
+Date:   Mon Mar 7 19:09:49 2022 +0100
+
+    Fix videoproperties which were wrong after the schema change to 1362 in commit e79b8fc.
+
+commit 261c6029328ac2ff4a062c46f173f9cc503509be
+Author: Ian Cameron <1661072+mkbloke@users.noreply.github.com>
+Date:   Fri Feb 25 17:38:51 2022 +0000
+
+    Update mythweb_id cookie to enable SameSite=Strict
+
+commit a11f393e423e46c73300472f81f907119823636a
+Author: Ian Cameron <1661072+mkbloke@users.noreply.github.com>
+Date:   Fri Feb 25 20:08:22 2022 +0000
+
+    Update music cookies to enable SameSite=Strict
+
+commit b99922652090c1ab9db173a1d6cc4c939adfd35c
+Author: Ian Cameron <1661072+mkbloke@users.noreply.github.com>
+Date:   Fri Feb 25 19:31:32 2022 +0000
+
+    Correct paths for apple-touch-icons
+
+commit d2aa192561808b213686620670dc15259292395f
+Author: Gary Buhrmaster <gary.buhrmaster@gmail.com>
+Date:   Mon Dec 13 17:41:52 2021 +0000
+
+    Display people in priority order when displaying program details
+    
+    With MythTV commit bf47572d56 (Include actor roles in cast info)
+    the credits table now maintains the order received from a XMLTV
+    feed(1).  This patch returns the credits in the order specified
+    for display purposes.  Because an actor may play multiple
+    characters in certain shows, only return an actor's name once.
+    
+    Fixes: #40
+    
+    (1) All XMLTV grabbers are expected to provide the credits in
+        the order of billing to the best of their abilities, which
+        is typically limited to their upstream guide source(s).
+
+commit 9e9aaf924b5b0719b7a2e4c4df20a7daa736d2af
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Dec 12 17:46:59 2021 +0000
+
+    Fix simple typo.
+
+commit 860836bd8c63cfd4f3fcfd51e5e0680fc123f92a
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Dec 12 17:32:31 2021 +0000
+
+    Fix typo in ffmpeg.app path.
+
+commit 4fc9840df5fe819e8f6ee9fd61a0d8d97f662477
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Fri Dec 10 22:32:58 2021 +0000
+
+    Undefined constant 'theme_timeslot_size'.
+
+commit 793237a6dda6e75be9887af5e9fde5e6fc6c587c
+Author: Bernhard Geier <2651739+citronalco@users.noreply.github.com>
+Date:   Sun Oct 10 22:06:43 2021 +0200
+
+    Escape newlines in title and subtitle for javascript
+
+commit ca8d0daa3ed32d44744069c798b0adc44d93765d
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Mon Sep 27 19:58:27 2021 +0100
+
+    Do not edit schedule->channel, it has knock on effects.
+
+commit ae032391414c774f2177c4282b60728df828556e
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 26 20:28:50 2021 +0100
+
+    Remove unnecessary sort_hints.
+
+commit c779cbdcbaa6b19b3661f3ca244ffc8d833760cd
+Merge: 22ed144c e79811a3
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 26 20:11:08 2021 +0100
+
+    Merge branch 'js-table_sort-schedule' into schedules-table-sort
+
+commit e79811a38065c5cf27a999ecb4d85e261e9d7ec9
+Merge: 407113c0 30e96d51
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 26 20:06:42 2021 +0100
+
+    Merge branch 'master' into js-table_sort-schedule
+
+commit 22ed144cb24950e9359c5e419cc9b8cf96736e91
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 26 19:43:37 2021 +0100
+
+    Add support for table header sorting with recording schedules.
+
+commit dff18157473bef9a3d259cc2384634016f2a2148
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 26 19:05:30 2021 +0100
+
+    Do not display templates in the recording schedule list.
+
+commit 7dd9eb9e1633e5fa174ad54733fdb0810edb8bac
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 26 18:52:34 2021 +0100
+
+    Do not reference recgroup when calling recgroup_select.
+
+commit 407113c024b034f5daaafa2ad893bff7f76c89b9
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sun Sep 19 07:47:23 2021 +0100
+
+    Fix the sorting by title in JavaScript.
+    Ignores A, An and The prefixes.
+
+commit c4793911ebe68085abcf4e59da9f0d92d9707552
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sat Sep 18 08:25:24 2021 +0100
+
+    Add missing return value.
+    "Session callback expects true/false return value!!".
+
+commit e0cc95367cc022961259e6136ce470e913d91ac8
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sat Sep 18 08:14:19 2021 +0100
+
+    Add default sort order for tv/schedules.
+
+commit 154956e9a3eca8d5b78cc1d03a0914ff2f0465a8
+Author: Nigel Jewell <nige@grufty.co.uk>
+Date:   Sat Sep 18 08:07:47 2021 +0100
+
+    Use REQUEST_URI rather than PATH_INFO due to decoding issues.
+
+commit 286ecda3ea49727dc728ca81ceb71585660db8a8
+Author: Ian Cameron <1661072+mkbloke@users.noreply.github.com>
+Date:   Thu Aug 12 01:30:19 2021 +0100
+
+    Fix "isn't numeric" error in range request header parsing

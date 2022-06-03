@@ -1,0 +1,585 @@
+diff --git a/includes/session.php b/includes/session.php
+index 1bf4f1e6..fb075f3b 100644
+--- a/includes/session.php
++++ b/includes/session.php
+@@ -19,7 +19,15 @@
+     ini_set('session.gc_maxlifetime', 60 * 60 * 24 * 30);   // 30 day timeout on sessions
+     session_set_save_handler('sess_do_nothing', 'sess_do_nothing', 'sess_read', 'sess_write', 'sess_destroy', 'sess_gc');
+     session_start();
+-    setcookie(session_name(), session_id(), time() + 60*60*24*30, '/');     // Update 30 day timeout
++    if (PHP_VERSION_ID < 70300) {
++        setcookie(session_name(), session_id(), time() + 60*60*24*30, '/; SameSite=Strict');     // Update 30 day timeout
++    } else {
++        setcookie(session_name(), session_id(), [
++            'expires' => time() + 60*60*24*30,
++            'path' => '/',
++            'samesite' => 'Strict'
++        ]);
++    }
+ 
+ // Register a destruction handler for the db object, since the guys who write
+ // PHP are smoking something and think objects should be destroyed before the
+@@ -65,7 +73,7 @@
+     function sess_write($id, $data) {
+         global $db;
+         if (empty($db))
+-            return;
++            return false;
+         if (!empty($_SERVER['REMOTE_USER']))
+             $id = 'user:'.$_SERVER['REMOTE_USER'];
+         $db->query('REPLACE INTO mythweb_sessions (id, modified, data) VALUES (?,CURRENT_TIMESTAMP,?)',
+diff --git a/includes/sorting.php b/includes/sorting.php
+index e307525b..3b94f013 100644
+--- a/includes/sorting.php
++++ b/includes/sorting.php
+@@ -16,7 +16,7 @@
+  **/
+     function get_sort_link($field, $string) {
+     // Get the URL
+-        $url = substr($_SERVER['PATH_INFO'], 1);
++        $url = substr(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), 1);
+         if (empty($url))
+             $url = str_replace('mythweb.php/', '', $_SERVER['PHP_SELF']);
+         else
+@@ -235,3 +235,53 @@
+         if ($a->transcoder == $b->transcoder) return 0;
+         return ($a->transcoder > $b->transcoder) ? 1 : -1;
+     }
++
++    function by_callsign_with_type(&$a, &$b) {
++        // If this is an 'always on any channel' or 'find one' recording without the 'This Channel' filter, set the callsign to 'Any'
++        if (($a->type == rectype_always || $a->type == rectype_findone) && !($a->filter & (1 << 10)))
++            $ac = '['.t('Any').']';
++        else
++            $ac = $a->channel->callsign;
++
++        if (($b->type == rectype_always || $b->type == rectype_findone) && !($b->filter & (1 << 10)))
++            $bc = '['.t('Any').']';
++        else
++            $bc = $b->channel->callsign;
++
++        return strnatcasecmp($ac, $bc);
++    }
++
++    function by_channum_with_type(&$a, &$b) {
++        // If this is an 'always on any channel' or 'find one' recording without the 'This Channel' filter, set the channum to 'Any'
++        if (($a->type == rectype_always || $a->type == rectype_findone) && !($a->filter & (1 << 10)))
++            $ac = '['.t('Any').']';
++        else
++            $ac = $a->channel->channum;
++
++        if (($b->type == rectype_always || $b->type == rectype_findone) && !($b->filter & (1 << 10)))
++            $bc = '['.t('Any').']';
++        else
++            $bc = $b->channel->channum;
++
++        return strnatcasecmp($ac, $bc);
++    }
++
++    function by_endoffset(&$a, &$b) {
++        if ($a->endoffset == $b->endoffset) return 0;
++        return ($a->endoffset > $b->endoffset) ? 1 : -1;
++    }
++
++    function by_last_record(&$a, &$b) {
++        if ($a->last_record == $b->last_record) return 0;
++        return ($a->last_record > $b->last_record) ? 1 : -1;
++    }
++
++    function by_startoffset(&$a, &$b) {
++        if ($a->startoffset == $b->startoffset) return 0;
++        return ($a->startoffset > $b->startoffset) ? 1 : -1;
++    }
++
++    function by_storagegroup(&$a, &$b) {
++        if ($a->storagegroup == $b->storagegroup) return 0;
++        return ($a->storagegroup > $b->storagegroup) ? 1 : -1;
++    }
+diff --git a/includes/utils.php b/includes/utils.php
+index 4e30d010..a67171b0 100644
+--- a/includes/utils.php
++++ b/includes/utils.php
+@@ -331,8 +331,9 @@
+ 
+ // Template finder helper
+ 	function get_template_file($module, $file) {
+-		$tmpl = tmpl;
+-		if (tmpl == 'tmpl')
++		if (defined('tmpl'))
++			$tmpl = tmpl;
++		else
+ 			$tmpl = 'default';
+ 
+ 		return "modules/{$module}/tmpl/{$tmpl}/{$file}";
+diff --git a/js/table_sort.js b/js/table_sort.js
+index 2608818c..adaeb566 100644
+--- a/js/table_sort.js
++++ b/js/table_sort.js
+@@ -201,7 +201,7 @@ var SortableTable = Class.create({
+         this.doHeaderArrows();
+     // Fix any zebra striping
+         this.fixZebraStripes();
+-    // Remove the current index fromt he previous sorts and make sure it's uniq
++    // Remove the current index from the previous sorts and make sure it's uniq
+         this.cache_previous_sorts = this.cache_previous_sorts.without(this.sort_cell_index).uniq();
+     // Add in the sorted col
+         this.cache_previous_sorts.push(this.sort_cell_index);
+diff --git a/modules/_shared/tmpl/default/header.php b/modules/_shared/tmpl/default/header.php
+index 9360baf7..bbab3697 100644
+--- a/modules/_shared/tmpl/default/header.php
++++ b/modules/_shared/tmpl/default/header.php
+@@ -50,9 +50,9 @@ EOF;
+     <link rel="icon"          href="<?php echo skin_url ?>img/favicon.ico" type="image/x-icon">
+     <link rel="shortcut icon" href="<?php echo skin_url ?>img/favicon.ico" type="image/x-icon">
+ 
+-    <link rel="apple-touch-icon" href="<?php echo skin_url ?>img/apple-touch-icon.png" />
+-    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo skin_url ?>img/apple-touch-icon-72x72.png" />
+-    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo skin_url ?>img/apple-touch-icon-114x114.png" />
++    <link rel="apple-touch-icon" href="<?php echo skin_url ?>img/apple-touch-icons/apple-touch-icon.png" />
++    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo skin_url ?>img/apple-touch-icons/apple-touch-icon-72x72.png" />
++    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo skin_url ?>img/apple-touch-icons/apple-touch-icon-114x114.png" />
+ 
+     <link type="application/opensearchdescription+xml" rel="search" href="tv/opensearch?type=xml" title="MythTV">
+ 
+diff --git a/modules/_shared/tmpl/lite/header.php b/modules/_shared/tmpl/lite/header.php
+index 4c0e0865..c471b9de 100644
+--- a/modules/_shared/tmpl/lite/header.php
++++ b/modules/_shared/tmpl/lite/header.php
+@@ -21,9 +21,9 @@
+     <link rel="icon"          href="<?php echo skin_url ?>/img/favicon.ico" type="image/x-icon" />
+     <link rel="shortcut icon" href="<?php echo skin_url ?>/img/favicon.ico" type="image/x-icon" />
+ 
+-    <link rel="apple-touch-icon" href="<?php echo skin_url ?>img/apple-touch-icon.png" />
+-    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo skin_url ?>img/apple-touch-icon-72x72.png" />
+-    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo skin_url ?>img/apple-touch-icon-114x114.png" />
++    <link rel="apple-touch-icon" href="<?php echo skin_url ?>img/apple-touch-icons/apple-touch-icon.png" />
++    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo skin_url ?>img/apple-touch-icons/apple-touch-icon-72x72.png" />
++    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo skin_url ?>img/apple-touch-icons/apple-touch-icon-114x114.png" />
+ 
+     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+     <meta name="robots" content="noindex, nofollow">
+diff --git a/modules/music/mp3act_functions.php b/modules/music/mp3act_functions.php
+index d4683442..4c178772 100644
+--- a/modules/music/mp3act_functions.php
++++ b/modules/music/mp3act_functions.php
+@@ -1133,7 +1133,15 @@ function internalUpdatePlaylist($songs, $count, $length)
+     $plId = $db->insert_id();
+     if ($plId)
+     {
+-      setcookie('mp3act_playlist_id', $plId, time()+MYTH_PLAYLIST_SAVE_TIME);
++      if (PHP_VERSION_ID < 70300) {
++        setcookie('mp3act_playlist_id', $plId, time()+MYTH_PLAYLIST_SAVE_TIME, '/; SameSite=Strict');
++      } else {
++        setcookie('mp3act_playlist_id', $plId, [
++          'expires' => time()+MYTH_PLAYLIST_SAVE_TIME,
++          'path' => '/',
++          'samesite' => 'Strict'
++        ]);
++      }
+       return $plId;
+     }
+   }
+@@ -1272,7 +1280,15 @@ function clearPlaylist()
+   $pl = internalGetPlaylist();
+ 
+   // Trash the cookie (empties the playlist)
+-  setcookie('mp3act_playlist_id', false, time()-3600);
++  if (PHP_VERSION_ID < 70300) {
++    setcookie('mp3act_playlist_id', false, time()-3600, '/; SameSite=Strict');
++  } else {
++    setcookie('mp3act_playlist_id', false, [
++      'expires' => time()-3600,
++      'path' => '/',
++      'samesite' => 'Strict'
++    ]);
++  }
+ 
+   if (!empty($pl['playlist_name'])
+       && MYTH_WEB_PLAYLIST_NAME == $pl['playlist_name'])
+@@ -1291,7 +1307,15 @@ function deletePlaylist($id)
+   if ($id == $_COOKIE['mp3act_playlist_id'])
+   {
+     $rv = 1;
+-    setcookie('mp3act_playlist_id', false, time()-3600);
++    if (PHP_VERSION_ID < 70300) {
++      setcookie('mp3act_playlist_id', false, time()-3600, '/; SameSite=Strict');
++    } else {
++      setcookie('mp3act_playlist_id', false, [
++        'expires' => time()-3600,
++        'path' => '/',
++        'samesite' => 'Strict'
++      ]);
++    }
+   }
+ 
+   $query = 'DELETE FROM music_playlists '.
+@@ -1416,7 +1440,15 @@ function playlist_add($type, $itemid)
+   if ('loadplaylist' == $type)
+   {
+     clearPlaylist();
+-    setcookie('mp3act_playlist_id', $itemid, time()+MYTH_PLAYLIST_SAVE_TIME);
++    if (PHP_VERSION_ID < 70300) {
++      setcookie('mp3act_playlist_id', $itemid, time()+MYTH_PLAYLIST_SAVE_TIME, '/; SameSite=Strict');
++    } else {
++      setcookie('mp3act_playlist_id', $itemid, [
++        'expires' => time()+MYTH_PLAYLIST_SAVE_TIME,
++        'path' => '/',
++        'samesite' => 'Strict'
++      ]);
++    }
+     $output[0] = 1;
+     return $output;
+   }
+diff --git a/modules/mythweb/tmpl/default/set_flvplayer.php b/modules/mythweb/tmpl/default/set_flvplayer.php
+index f6b9ac08..8eade6d5 100644
+--- a/modules/mythweb/tmpl/default/set_flvplayer.php
++++ b/modules/mythweb/tmpl/default/set_flvplayer.php
+@@ -29,7 +29,7 @@
+                     break;
+                 }
+                 elseif (php_uname ('s') == 'Darwin' && file_exists ($path."/ffmpeg.app")) {
+-                    $ffmpeg = $path."/ffmpeg".app;
++                    $ffmpeg = $path."/ffmpeg.app";
+                     break;
+                 }
+             }
+diff --git a/modules/stream/stream_raw.pl b/modules/stream/stream_raw.pl
+index d1be2ac1..a0d5b4cf 100755
+--- a/modules/stream/stream_raw.pl
++++ b/modules/stream/stream_raw.pl
+@@ -120,7 +120,7 @@
+     if ($ENV{'HTTP_RANGE'}) {
+     # Figure out the size of the requested chunk
+         ($start, $end) = $ENV{'HTTP_RANGE'} =~ /bytes\W+(\d*)-(\d*)\W*$/;
+-        if ($end < 1 || $end > $size) {
++        if ($end eq '' || $end < 1 || $end > $size) {
+             $end = $size;
+         }
+         $size = $end - $start+1;
+diff --git a/modules/tv/classes/Channel.php b/modules/tv/classes/Channel.php
+index 73611112..b8b5fe47 100644
+--- a/modules/tv/classes/Channel.php
++++ b/modules/tv/classes/Channel.php
+@@ -143,7 +143,7 @@ class Channel extends MythBase {
+             $program_id_counter = 0;
+     ## we will eventually need to check for list vs "by channel" display
+     #  for now, we only have the main list display
+-        if (defined('theme_num_time_slots')) {
++        if (defined('theme_num_time_slots') && defined('theme_timeslot_size')) {
+             $timeslots_left = theme_num_time_slots;
+             $timeslot_size = theme_timeslot_size;
+         } else {
+diff --git a/modules/tv/classes/Program.php b/modules/tv/classes/Program.php
+index 0c07d16b..28b6d6d3 100644
+--- a/modules/tv/classes/Program.php
++++ b/modules/tv/classes/Program.php
+@@ -195,12 +195,14 @@ class Program extends MythBase {
+         $this->dolby                        = $this->audioproperties & 0x08;
+         $this->audiohardhear                = $this->audioproperties & 0x10;
+         $this->audiovisimpair               = $this->audioproperties & 0x20;
+-        $this->hdtv                         = $this->videoproperties & 0x01;
+-        $this->widescreen                   = $this->videoproperties & 0x02;
+-        $this->avc                          = $this->videoproperties & 0x04;
+-        $this->hd_ready                     = $this->videoproperties & 0x08;
+-        $this->fullhd                       = $this->videoproperties & 0x10;
+-        $this->damaged                      = $this->videoproperties & 0x20;
++
++        $this->widescreen                   = $this->videoproperties & 0x0001;
++        $this->hdtv                         = $this->videoproperties & 0x0002;
++        $this->avc                          = $this->videoproperties & 0x0008;
++        $this->hd_ready                     = $this->videoproperties & 0x0020;
++        $this->fullhd                       = $this->videoproperties & 0x0040;
++        $this->damaged                      = $this->videoproperties & 0x0400;
++
+         $this->closecaptioned               = $this->subtitletype    & 0x01;
+         $this->has_subtitles                = $this->subtitletype    & 0x02;
+         $this->subtitled                    = $this->subtitletype    & 0x04;
+@@ -565,12 +567,13 @@ class Program extends MythBase {
+     // No cached value -- load it
+         if (!isset($this->credits[$role][$add_search_links])) {
+         // Get the credits for the requested role
+-            $result = $db->query('SELECT people.name
++            $result = $db->query('SELECT DISTINCT people.name
+                                      FROM credits, people
+                                     WHERE credits.person    = people.person
+                                       AND credits.role      = ?
+                                       AND credits.chanid    = ?
+-                                      AND credits.starttime = FROM_UNIXTIME(?)',
++                                      AND credits.starttime = FROM_UNIXTIME(?)
++                                      ORDER BY credits.priority',
+                                    $role,
+                                    $this->chanid,
+                                    $this->starttime
+diff --git a/modules/tv/classes/Schedule.php b/modules/tv/classes/Schedule.php
+index b433db70..89ad596e 100644
+--- a/modules/tv/classes/Schedule.php
++++ b/modules/tv/classes/Schedule.php
+@@ -112,6 +112,15 @@ class Schedule extends MythBase {
+                     case 'airdate':
+                         $orderby .= 'starttime';
+                         break;
++                    case 'callsign_with_type':
++                        $orderby .= 'CASE WHEN (type = '.rectype_always.' OR type = '.rectype_findone.') AND !(filter & (1 << 10)) THEN "" ELSE callsign END';
++                        break;
++                    case 'channum_with_type':
++                        $orderby .= 'CASE WHEN (type = '.rectype_always.' OR type = '.rectype_findone.') AND !(filter & (1 << 10)) THEN 0 ELSE channum END';
++                        break;
++                    case 'last_record':
++                        $orderby .= 'record.last_record';
++                        break;
+                     case 'recpriority':
+                         $orderby .= 'record.recpriority';
+                         break;
+diff --git a/modules/tv/schedules.php b/modules/tv/schedules.php
+index 8ef2ad00..77120429 100644
+--- a/modules/tv/schedules.php
++++ b/modules/tv/schedules.php
+@@ -47,6 +47,10 @@
+ // Remove the reference. This prevents duplicate entries showing up in the list
+     unset($schedule);
+ 
++// Force the default sort preferences
++    if (!is_array($_SESSION['schedules_sortby']) || !count($_SESSION['schedules_sortby']))
++        $_SESSION['schedules_sortby'] = array(array('field' => 'title', 'reverse' => false));
++
+ // Sort the recordings
+     if (count($the_schedules))
+         sort_programs($the_schedules, 'schedules_sortby');
+diff --git a/modules/tv/tmpl/default/_advanced_options.php b/modules/tv/tmpl/default/_advanced_options.php
+index 4547acd8..97711cef 100644
+--- a/modules/tv/tmpl/default/_advanced_options.php
++++ b/modules/tv/tmpl/default/_advanced_options.php
+@@ -34,8 +34,8 @@
+         new Ajax.Request('<?php echo root_url ?>tv/lookup_metadata',
+                          {
+                             parameters: {
+-                                              'title'        : "<?php echo $schedule->title ?>",
+-                                              'subtitle'     : "<?php echo $schedule->subtitle ?>",
++                                              'title'        : "<?php echo preg_replace('/[\n\r]/', '\\n', $schedule->title) ?>",
++                                              'subtitle'     : "<?php echo preg_replace('/[\n\r]/', '\\n', $schedule->subtitle) ?>",
+                                               'inetref'      : $("inetref").value,
+                                               'season'       : $("season").value,
+                                               'episode'      : $("episode").value,
+diff --git a/modules/tv/tmpl/default/detail.php b/modules/tv/tmpl/default/detail.php
+index 05bad9be..673a477f 100644
+--- a/modules/tv/tmpl/default/detail.php
++++ b/modules/tv/tmpl/default/detail.php
+@@ -106,8 +106,8 @@
+         new Ajax.Request('<?php echo root_url ?>tv/lookup_metadata',
+                          {
+                             parameters: {
+-                                              'title'        : "<?php echo $schedule->title ?>",
+-                                              'subtitle'     : "<?php echo $schedule->subtitle ?>",
++                                              'title'        : "<?php echo preg_replace('/[\n\r]/', '\\n', $schedule->title) ?>",
++                                              'subtitle'     : "<?php echo preg_replace('/[\n\r]/', '\\n', $schedule->subtitle) ?>",
+                                               'inetref'      : "<?php echo ($program ? $program->inetref : $schedule->inetref) ?>",
+                                               'season'       : "<?php echo ($program ? $program->season : $schedule->season) ?>",
+                                               'episode'      : "<?php echo ($program ? $program->episode : $schedule->episode) ?>",
+diff --git a/modules/tv/tmpl/default/schedules.php b/modules/tv/tmpl/default/schedules.php
+index 7eb349dc..408fb9dd 100644
+--- a/modules/tv/tmpl/default/schedules.php
++++ b/modules/tv/tmpl/default/schedules.php
+@@ -28,7 +28,7 @@
+ 
+ // Print the page contents
+     $group_field = $_GET['sortby'];
+-    if ($group_field == 'title' || !in_array($group_field, array('title', 'channum', 'type', 'profile', 'recgroup')))
++    if ($group_field == 'title' || !in_array($group_field, array('title', 'callsign', 'channum', 'type', 'profile', 'recgroup')))
+         $group_field = '';
+ ?>
+ 
+@@ -71,17 +71,17 @@
+ <thead>
+ <tr class="menu">
+     <?php if ($group_field != '') echo "<th class=\"list\">&nbsp;</th>\n"; ?>
+-    <th class="x-title"><?php      echo t('Title' );              ?></th>
+-    <th class="x-priority"><?php   echo t('Recording Priority' ); ?></th>
+-    <th class="x-channel" sort_hint="sortMythwebChannel"><?php    echo t('Channel' );            ?></th>
+-    <th class="x-profile"><?php    echo t('Profile' );            ?></th>
+-    <th class="x-transcoder"><?php echo t('Transcoder');          ?></th>
+-    <th class="x-group"><?php      echo t('Recording Group');     ?></th>
+-    <th class="x-type"><?php       echo t('Type');                ?></th>
+-    <th class="x-sgroup"><?php     echo t('Storage Group');       ?></th>
+-    <th class="x-startoffset"><?php echo t('Start Early');        ?></th>
+-    <th class="x-endoffset"><?php  echo t('End Late');            ?></th>
+-    <th class="x-lastrec"><?php    echo t('Last Recorded');       ?></th>
++    <th class="x-title"><?php      echo get_sort_link('title', t('Title' ));              ?></th>
++    <th class="x-priority"><?php   echo get_sort_link('recpriority', t('Recording Priority' )); ?></th>
++    <th class="x-channel"><?php    echo get_sort_link($_SESSION["prefer_channum"] ? 'channum_with_type' : 'callsign_with_type', t('Channel' ));            ?></th>
++    <th class="x-profile"><?php    echo get_sort_link('profile', t('Profile' ));            ?></th>
++    <th class="x-transcoder"><?php echo get_sort_link('transcoder', t('Transcoder'));          ?></th>
++    <th class="x-group"><?php      echo get_sort_link('recgroup', t('Recording Group'));     ?></th>
++    <th class="x-type"><?php       echo get_sort_link('type', t('Type'));                ?></th>
++    <th class="x-sgroup"><?php     echo get_sort_link('storagegroup', t('Storage Group'));       ?></th>
++    <th class="x-startoffset"><?php echo get_sort_link('startoffset', t('Start Early'));        ?></th>
++    <th class="x-endoffset"><?php  echo get_sort_link('endoffset', t('End Late'));            ?></th>
++    <th class="x-lastrec"><?php    echo get_sort_link('last_record', t('Last Recorded'));       ?></th>
+ </tr>
+ </thead>
+ <?php
+@@ -97,8 +97,9 @@
+             $css_class = ($schedule->type == rectype_dontrec ? 'deactivated' : 'scheduled');
+         // If this is an 'always on any channel' or 'find one' recording without the 'This Channel' filter, set the channel name to 'Any'
+             if (($schedule->type == rectype_always || $schedule->type == rectype_findone) && !($schedule->filter & (1 << 10))) {
+-                $schedule->channel->name = '[ '.t('Any').' ]';
+-                $schedule->channel->channum = 0;
++                $any_channel = true;
++            } else {
++                $any_channel = false;
+             }
+         // A program id counter for popup info
+             if ($_SESSION["show_popup_info"]) {
+@@ -109,6 +110,8 @@
+         // Print a dividing row if grouping changes
+             if ($group_field == 'type')
+                 $cur_group = $schedule->texttype;
++            elseif ($group_field == 'callsign')
++                $cur_group = ($schedule->channel->callsign ? $schedule->channel->callsign.' - ' : '').$schedule->channel->name;
+             elseif ($group_field == 'channum')
+                 $cur_group = ($schedule->channel->channum ? $schedule->channel->channum.' - ' : '').$schedule->channel->name;
+             elseif ($group_field == 'profile')
+@@ -163,15 +166,19 @@
+             echo $schedule->recpriority
+         ?></td>
+     <td class="x-channel"><?php
+-            if ($_SESSION["prefer_channum"]) {
+-                if ($schedule->channel->channum)
+-                    echo $schedule->channel->channum.' - ';
++            if ($any_channel) {
++                echo '[ '.t('Any').' ]';
++            } else {
++                if ($_SESSION["prefer_channum"]) {
++                    if ($schedule->channel->channum)
++                        echo $schedule->channel->channum.' - ';
++                }
++                else {
++                    if ($schedule->channel->callsign)
++                        echo $schedule->channel->callsign.' - ';
++                }
++                echo $schedule->channel->name;
+             }
+-            else {
+-                if ($schedule->channel->callsign)
+-                    echo $schedule->channel->callsign.' - ';
+-            }
+-            echo $schedule->channel->name;
+         ?></td>
+     <td class="x-profile"><?php echo _or($schedule->profile,  '&nbsp;') ?></td>
+     <td class="x-transcoder"><?php
+diff --git a/modules/tv/tmpl/lite/detail.php b/modules/tv/tmpl/lite/detail.php
+index 2964d941..72b53b39 100644
+--- a/modules/tv/tmpl/lite/detail.php
++++ b/modules/tv/tmpl/lite/detail.php
+@@ -345,7 +345,7 @@
+                 <dt><?php echo t('Transcoder') ?>:</dt>
+                 <dd><?php transcoder_select($schedule->transcoder) ?></dd>
+                 <dt><?php echo t('Recording Group') ?>:</dt>
+-                <dd><?php recgroup_select($schedule->recgroup) ?></dd>
++                <dd><?php recgroup_select($schedule) ?></dd>
+                 <dt><?php echo t('Storage Group') ?>:</dt>
+                 <dd><?php storagegroup_select($schedule->storagegroup) ?></dd>
+                 <dt><?php echo t('Recording Priority') ?>:</dt>
+diff --git a/modules/tv/tmpl/lite/schedules.php b/modules/tv/tmpl/lite/schedules.php
+index 7478ecef..808c0e60 100644
+--- a/modules/tv/tmpl/lite/schedules.php
++++ b/modules/tv/tmpl/lite/schedules.php
+@@ -31,7 +31,7 @@
+ 
+ // Print the page contents
+     $group_field = $_GET['sortby'];
+-    if ($group_field == 'title' || !in_array($group_field, array('title', 'channum', 'type', 'profile', 'recgroup')))
++    if ($group_field == 'title' || !in_array($group_field, array('title', 'callsign', 'channum', 'type', 'profile', 'recgroup')))
+         $group_field = '';
+ ?>
+ 
+@@ -40,7 +40,7 @@
+     <?php if ($group_field != '') echo "<td class=\"list\">&nbsp;</td>\n" ?>
+     <td><?php echo get_sort_link('title',    t('title')) ?></td>
+     <td><?php echo get_sort_link('recpriority', t('recpriority')) ?></td>
+-    <td><?php echo get_sort_link($_SESSION["prefer_channum"] ? 'channum' : 'callsign',  t('channel')) ?></td>
++    <td><?php echo get_sort_link($_SESSION["prefer_channum"] ? 'channum_with_type' : 'callsign_with_type',  t('channel')) ?></td>
+     <td><?php echo get_sort_link('profile',  t('profile')) ?></td>
+     <td><?php echo get_sort_link('transcoder',  t('transcoder')) ?></td>
+     <td><?php echo get_sort_link('recgroup', t('recgroup')) ?></td>
+@@ -49,19 +49,24 @@
+         $prev_group = '';
+         $cur_group  = '';
+         foreach ($the_schedules as $schedule) {
++        // Ignore templates until full support can be added
++            if ($schedule->type == rectype_template)
++                continue;
+         // Reset the command variable to a default URL
+             $urlstr = 'recordid='.$schedule->recordid;
+ 
+             $css_class = ($schedule->type == rectype_dontrec ? 'deactivated' : 'scheduled');
+         // If this is an 'always on any channel' or 'find one' recording without the 'This Channel' filter, set the channel name to 'Any'
+             if (($schedule->type == rectype_always || $schedule->type == rectype_findone) && !($schedule->filter & (1 << 10))) {
+-                $schedule->channel->name = '[ '.t('Any').' ]';
+-                $schedule->channel->channum = 0;
++                $any_channel = true;
++            } else {
++                $any_channel = false;
+             }
+-
+         // Print a dividing row if grouping changes
+             if ($group_field == 'type')
+                 $cur_group = $schedule->texttype;
++            elseif ($group_field == 'callsign')
++                $cur_group = ($schedule->channel->callsign ? $schedule->channel->callsign.' - ' : '').$schedule->channel->name;
+             elseif ($group_field == 'channum')
+                 $cur_group = ($schedule->channel->channum ? $schedule->channel->channum.' - ' : '').$schedule->channel->name;
+             elseif ($group_field == 'profile')
+@@ -109,15 +114,19 @@
+             echo $schedule->recpriority
+         ?></td>
+     <td><?php
+-            if ($_SESSION["prefer_channum"]) {
+-                if ($schedule->channel->channum)
+-                    echo $schedule->channel->channum.' - ';
+-            }
+-            else {
+-                if ($schedule->channel->callsign)
+-                    echo $schedule->channel->callsign.' - ';
++            if ($any_channel) {
++                echo '[ '.t('Any').' ]';
++            } else {
++                if ($_SESSION["prefer_channum"]) {
++                    if ($schedule->channel->channum)
++                        echo $schedule->channel->channum.' - ';
++                }
++                else {
++                    if ($schedule->channel->callsign)
++                        echo $schedule->channel->callsign.' - ';
++                }
++                echo $schedule->channel->name;
+             }
+-            echo $schedule->channel->name;
+         ?></td>
+     <td nowrap><?php echo _or($schedule->profile,  '&nbsp;') ?></td>
+     <td nowrap>
+diff --git a/modules/tv/tmpl/lite/schedules_custom.php b/modules/tv/tmpl/lite/schedules_custom.php
+index 8a241c5d..942d60c3 100644
+--- a/modules/tv/tmpl/lite/schedules_custom.php
++++ b/modules/tv/tmpl/lite/schedules_custom.php
+@@ -142,7 +142,7 @@
+                 <dt><?php echo t('Transcoder') ?>:</dt>
+                 <dd><?php transcoder_select($schedule->transcoder) ?></dd>
+                 <dt><?php echo t('Recording Group') ?>:</dt>
+-                <dd><?php recgroup_select($schedule->recgroup) ?></dd>
++                <dd><?php recgroup_select($schedule) ?></dd>
+                 <dt><?php echo t('Storage Group') ?>:</dt>
+                 <dd><?php storagegroup_select($schedule->storagegroup) ?></dd>
+                 <dt><?php echo t('Recording Priority') ?>:</dt>
+diff --git a/modules/tv/tmpl/lite/schedules_manual.php b/modules/tv/tmpl/lite/schedules_manual.php
+index d06ed363..e76004f2 100644
+--- a/modules/tv/tmpl/lite/schedules_manual.php
++++ b/modules/tv/tmpl/lite/schedules_manual.php
+@@ -97,7 +97,7 @@
+                 <dt><?php echo t('Transcoder') ?>:</dt>
+                 <dd><?php transcoder_select($schedule->transcoder) ?></dd>
+                 <dt><?php echo t('Recording Group') ?>:</dt>
+-                <dd><?php recgroup_select($schedule->recgroup) ?></dd>
++                <dd><?php recgroup_select($schedule) ?></dd>
+                 <dt><?php echo t('Storage Group') ?>:</dt>
+                 <dd><?php storagegroup_select($schedule->storagegroup) ?></dd>
+                 <dt><?php echo t('Recording Priority') ?>:</dt>
