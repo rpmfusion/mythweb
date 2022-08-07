@@ -5,7 +5,7 @@ Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
 Version:        32.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -73,6 +73,10 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
 
 %changelog
+* Sun Aug 07 2022 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 32.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild and ffmpeg
+  5.1
+
 * Fri Jun 03 2022 Richard Shaw <hobbes1069@gmail.com> - 32.0-2
 - Update to v32.0-40-gb05906a6.
 
