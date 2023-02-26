@@ -1,19 +1,15 @@
-%global vers_string v32.0
-
 Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        32.0
-Release:        3%{?dist}
+Version:        33.1
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
 Source0:        https://github.com/MythTV/%{name}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        mythweb.conf
 Source2:        ChangeLog
-
-Patch0:         mythweb-fixes.patch
 
 # This is needed for perl dependency auto-detection
 BuildRequires:  perl-generators
@@ -27,10 +23,8 @@ Requires:       mythffmpeg
 
 BuildArch:      noarch
 
-
 %description
 The web interface to MythTV.
-
 
 %prep
 %autosetup -p1
@@ -41,10 +35,8 @@ sed -i modules/coverart/handler.pl -e '/\/usr\/bin\/perl/d'
 # Install ChangeLog
 install -m 0644 %{SOURCE2} .
 
-
 %build
 # Nothing to build
-
 
 %install
 mkdir -p %{buildroot}%{_datadir}/mythweb/{image_cache,php_sessions}
@@ -63,7 +55,6 @@ install -pm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/
 # Remove stuff covered by %%doc
 rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 
-
 %files
 %doc README ChangeLog
 %license LICENSE
@@ -71,8 +62,10 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 %{_datadir}/%{name}/
 %attr(-,apache,apache) %{_sharedstatedir}/%{name}/
 
-
 %changelog
+* Sun Feb 26 2023 Andrew Bauer <zonexpertconsulting@outlook.com> - 33.1-1
+- Update to 33.1
+
 * Sun Aug 07 2022 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 32.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild and ffmpeg
   5.1
