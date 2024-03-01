@@ -2,8 +2,8 @@ Name:           mythweb
 Summary:        The web interface to MythTV
 URL:            http://www.mythtv.org/
 
-Version:        33.1
-Release:        3%{?dist}
+Version:        34.0
+Release:        1%{?dist}
 
 License:        GPLv2 and LGPLv2 and MIT
 
@@ -63,6 +63,9 @@ rm %{buildroot}%{_datadir}/mythweb/{LICENSE,README,INSTALL,ChangeLog}
 %attr(-,apache,apache) %{_sharedstatedir}/%{name}/
 
 %changelog
+* Fri Mar 01 2024 Andrew Bauer <zonexpertconsulting@outlook.com> - 34.0-1
+- 34.0 release
+
 * Sun Feb 04 2024 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 33.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
 
